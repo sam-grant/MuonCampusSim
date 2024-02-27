@@ -1,0 +1,7 @@
+*.png
+*.pdf
+*.dat
+*.out
+Macros/__pycache__
+Images/
+Data/
