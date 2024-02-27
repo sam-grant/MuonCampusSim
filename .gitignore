@@ -2,6 +2,8 @@
 *.pdf
 *.dat
 *.out
+*~
+Macros/*~
 Macros/__pycache__
 Images/
 Data/
