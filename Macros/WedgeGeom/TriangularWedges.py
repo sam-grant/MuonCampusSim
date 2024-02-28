@@ -53,7 +53,7 @@ def PlotLines(x, y_ = [], label=None, title=None, xlabel=None, ylabel=None,label
     print("---> Written", fout)
 
     # Clear memory
-    plt.clf()
+    plt.close()
 
     return
 
