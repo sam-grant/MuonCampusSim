@@ -47,7 +47,7 @@ def Run():
         hists_[alias].append(data["pz"])
 
     # Overlay the histograms
-    ut.Plot1DOverlay(hists_, nbins=78, xmin=-0.09, xmax=0.09, xlabel="$\Delta p / p_{0}$", ylabel="Muons / 0.0025", fout=f"../../Images/{config}/h1_muons_end_pz_overlay.png", includeBlack=True) 
+    ut.Plot1DOverlay(hists_, nbins=28, xmin=-0.07, xmax=0.07, xlabel="$\Delta p / p_{0}$", ylabel="Muons / 0.005", fout=f"../../Images/h1_muons_end_pz_overlay.png", includeBlack=True) 
         
     return
 
