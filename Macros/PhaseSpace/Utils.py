@@ -244,7 +244,7 @@ def PlotNormEntriesGraph(x, y, xerr=[], yerr=[], title=None, xlabel=None, ylabel
 
     ax.errorbar(x, y, xerr=xerr, yerr=yerr, fmt='o', color=colours[2], markersize=4, ecolor=colours[2], capsize=2, elinewidth=1, linestyle='None')
 
-    ax.set_ylim(0, 1.1)
+    # ax.set_ylim(0, 1.1)
     plt.axhline(y=1, color='gray', linestyle='-', linewidth=1, zorder=0)
     plt.axhline(y=1.04, color='gray', linestyle='--', linewidth=1, zorder=0)
     plt.axhline(y=0.96, color='gray', linestyle='--', linewidth=1, zorder=0)
@@ -312,7 +312,62 @@ def Plot2D(x, y, nBinsX=100, xmin=-1.0, xmax=1.0, nBinsY=100, ymin=-1.0, ymax=1.
     plt.savefig(fout, dpi=NDPI, bbox_inches="tight")
     print("---> Written", fout)
 
+    plt.close()
+
+def Plot3D(x, y, z, nBinsX=100, xmin=-1.0, xmax=1.0, nBinsY=100, ymin=-1.0, ymax=1.0, zmax=1.0, title=None, xlabel=None, ylabel=None, zlabel=None, fout="3d_plot.png", contours=False, cb=True, NDPI=300):
+
+    # Create a 2D histogram in xy, with the average z values on the colorbar
+    hist_xy, x_edges_xy, y_edges_xy = np.histogram2d(x, y, bins=[nBinsX, nBinsY], range=[[xmin, xmax], [ymin, ymax]], weights=z)
+
+    # Calculate the histogram bin counts
+    hist_counts, _, _ = np.histogram2d(x, y, bins=[nBinsX, nBinsY], range=[[xmin, xmax], [ymin, ymax]])
+    # Avoid division by zero and invalid values
+    non_zero_counts = hist_counts > 0
+    hist_xy[non_zero_counts] /= hist_counts[non_zero_counts]
+
+    # Set up the plot
+
+    fig, ax = plt.subplots()
+
+    # Plot the 2D histogram
+    im = ax.imshow(hist_xy.T, cmap='inferno', extent=[xmin, xmax, ymin, ymax], aspect='auto', origin='lower', vmax=zmax) # z.max()) # , norm=cm.LogNorm())
+
+    # Add colourbar
+    cbar = plt.colorbar(im) # , ticks=np.linspace(zmin, zmax, num=10)) 
+
+    # Add contour lines to visualize bin boundaries
+    if contours:
+        contour_levels = np.linspace(zmin, zmax, num=nBinsZ)
+        print(contour_levels)
+        # ax.contour(hist_xy.T, levels=[66], extent=[xmin, xmax, ymin, ymax], colors='white', linewidths=0.7)
+        ax.contour(hist_xy.T, levels=contour_levels, extent=[xmin, xmax, ymin, ymax], colors='white', linewidths=0.7)
+
+    plt.title(title, fontsize=16, pad=10)
+    plt.xlabel(xlabel, fontsize=14, labelpad=10)
+    plt.ylabel(ylabel, fontsize=14, labelpad=10)
+    cbar.set_label(zlabel, fontsize=14, labelpad=10)
+
+    # Scientific notation
+    if ax.get_xlim()[1] > 999:
+        ax.xaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+        ax.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+        ax.xaxis.offsetText.set_fontsize(14)
+    if ax.get_ylim()[1] > 999:
+        ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+        ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+        ax.yaxis.offsetText.set_fontsize(14)
+    # if ax.get_zlim()[1] > 999:
+    #     ax.zaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+    #     ax.ticklabel_format(style='sci', axis='z', scilimits=(0,0))
+    #     ax.zaxis.offsetText.set_fontsize(14)
+
+    plt.savefig(fout, dpi=NDPI, bbox_inches="tight")
+    print("---> Written", fout)
+
     # Clear memory
+    plt.close()
+
+    return
 
 def Plot2DWith1DProj(x, y, nBinsX=100, xmin=-1.0, xmax=1.0, nBinsY=100, ymin=-1.0, ymax=1.0, title=None, xlabel=None, ylabel=None, fout="hist.png", NDPI=300, logZ=False):
 
@@ -412,6 +467,75 @@ def Plot2DWith1DProj(x, y, nBinsX=100, xmin=-1.0, xmax=1.0, nBinsY=100, ymin=-1.
     # ax3.tick_params(axis='y', which='major', length=ax1.get_tick_params('length')) 
 
     # Save figure
+    plt.savefig(fout, dpi=NDPI, bbox_inches="tight")
+    print("---> Written", fout)
+
+    # Clear memory
+    plt.close()
+
+def Plot1DLossesOverlay(data_dict, nbins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, ylabel=None, fout="hist.png", legPos="best", NDPI=300, includeBlack=False, logY=False, legFontSize=12, colours_extended=False):
+
+    # Create figure and axes
+    fig, ax = plt.subplots()
+
+    # colours = colours
+    # if colours_extended: colours = GetExtendedColours(len(data_dict))
+    # norm_hist = data_dict["No wedge"]
+    # Iterate over the hists_dict and plot each one
+    for i, (label, hist) in enumerate(data_dict.items()):
+        colour = colours[i+1]
+        # if not includeBlack: colour = colours[i+1]
+        if label == "No wedge": colour = colours[0]
+        #     no_wedge_counts, no_wedge_bin_edges, _ = np.histogram(hist, bins=nbins, range=(xmin, xmax), density=False)
+
+        # hist = hist / norm_hist
+
+        # ax.hist(hist, bins=nbins, range=(xmin, xmax), histtype='step', linewidth=1.0, fill=False, density=False, label=label, log=logY)
+        counts, bin_edges, _ = ax.hist(hist, bins=nbins, range=(xmin, xmax), histtype='step', edgecolor=colour, linewidth=1.0, fill=False, density=False, color=colour, label=label, log=logY)
+
+    # no_wedge_hist_counts = None
+    # no_wedge_hist_counts, bin_edges = np.histogram(data_dict["No wedge"], bins=nbins, range=(xmin, xmax), density=False)
+    # # Iterate over the hists_dict and calculate normalization
+    # for i, (label, hist) in enumerate(data_dict.items()):
+    #     if i == 0: continue
+    #     colour = colours[i]
+    #     # if label == "No wedge":
+    #     #     # Calculate the histogram for "No wedge"
+    #     #     no_wedge_hist_counts, bin_edges = np.histogram(hist, bins=nbins, range=(xmin, xmax), density=False)
+    #     # else:
+    #     # Calculate the histogram for the current data
+    #     counts, _ = np.histogram(hist, bins=nbins, range=(xmin, xmax), density=False)
+    #     # Normalize the current histogram based on "No wedge" bin-by-bin
+    #     weights = 1 / no_wedge_hist_counts
+    #     # Plot the normalized histogram
+    #     ax.hist(bin_edges[:-1], bins=bin_edges, weights=weights, histtype='step', edgecolor=colour, linewidth=1.0, fill=False, density=False, color=colour, label=label, log=logY)
+        
+    # Set x-axis limits
+    ax.set_xlim(xmin, xmax)
+
+    ax.set_title(title, fontsize=15, pad=10)
+    ax.set_xlabel(xlabel, fontsize=13, labelpad=10) 
+    ax.set_ylabel(ylabel, fontsize=13, labelpad=10) 
+
+    plt.axvline(x=6000, color='gray', linestyle='--', linewidth=1, zorder=0)
+
+    # Set font size of tick labels on x and y axes
+    ax.tick_params(axis='x', labelsize=13)  # Set x-axis tick label font size
+    ax.tick_params(axis='y', labelsize=13)  # Set y-axis tick label font size
+    
+    if (ax.get_xlim()[1] > 9999 or ax.get_xlim()[1] < 9.999e-3):
+        ax.xaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+        ax.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+        ax.xaxis.offsetText.set_fontsize(13)
+    if (ax.get_ylim()[1] > 9999 or ax.get_ylim()[1] < 9.999e-3):
+        ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+        ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+        ax.yaxis.offsetText.set_fontsize(13)
+
+    # Add legend to the plot
+    ax.legend(loc="upper left", frameon=False, fontsize=legFontSize)
+
+    # Save the figure
     plt.savefig(fout, dpi=NDPI, bbox_inches="tight")
     print("---> Written", fout)
 
