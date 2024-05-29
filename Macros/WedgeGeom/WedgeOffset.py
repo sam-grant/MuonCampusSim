@@ -46,31 +46,31 @@ def Plot(coords_x, coords_z, x1_, z1_, x2_, z2_, title=None, xlabel="z [in]", yl
     ax.tick_params(axis='y', labelsize=13)  # Set y-axis tick label font size
 
     # Scientific notation
-    if ax.get_xlim()[1] > 9999 or ax.get_xlim()[1] < 9.999e-2:
+    if ax.get_xlim()[1] > 9999 or ax.get_xlim()[1] < 9.999e-3:
         ax.xaxis.set_major_formatter(ScalarFormatter(useMathText=True))
         ax.ticklabel_format(style='sci', axis='x', scilimits=(0, 0))
         ax.xaxis.offsetText.set_fontsize(13)
-    if ax.get_ylim()[1] > 9999:
+    if ax.get_ylim()[1] > 9999 or ax.get_ylim()[1] < 9.999e-3:
         ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
         ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
         ax.yaxis.offsetText.set_fontsize(13)
 
     ax.set_aspect('equal')
 
-    # ax.set_ylim(-2, 3)
-    # ax.set_xlim(-1, 4)
+    # ax.set_ylim(-0.5, 0.5)
+    # ax.set_xlim(-3, 3)
 
     # Save the figure
     # plt.grid(True)
 
     # Legned
-    plt.legend(frameon=False, loc="lower right", fontsize=13, bbox_to_anchor=(0.6, 1.0))
+    # plt.legend(frameon=False, loc="lower right", fontsize=13, bbox_to_anchor=(0.6, 1.0))
     # bbox_to_anchor=(0.5, 1.1))
 
     plt.axhline(y=0, color='gray', linestyle='--', linewidth=1)
     # plt.axvline(x=0, color='gray', linestyle='--')
 
-    plt.savefig(fout, dpi=300) # , bbox_inches="tight")
+    plt.savefig(fout, dpi=300, bbox_inches="tight")
     print("---> Written", fout)
 
     # Clear memory
@@ -107,7 +107,7 @@ def RunEremeyFormula(wedge_offset, t0):
 def main():
 
     # Wedge offset parameter
-    wedge_offset = 0.01*1e3 / 25.4
+    wedge_offset = -0.00955*1e3 / 25.4
 
     # Wedge geometry 
     coords_x, coords_z = WedgeGeom(wedge_offset=wedge_offset)
@@ -120,7 +120,7 @@ def main():
     xa2_, za2_ = RunEremeyFormula(wedge_offset=wedge_offset, t0=t0)
 
     # Plot(coords_x*25.4*1e-3, coords_z*25.4*1e-3, xa1_*25.4*1e-3, za1_*25.4*1e-3, xa2_*25.4*1e-3, za2_*25.4*1e-3, fout="../../Images/WedgeGeomA.png")
-    Plot(coords_x, coords_z, xa1_, za1_, xa2_, za2_, fout="../../Images/WedgeGeomA.png")
+    Plot(coords_x, coords_z, xa1_, za1_, xa2_, za2_, fout="../../Images/WedgeGeom/WedgeGeom_B4C.png")
     # Plot(coords_x, coords_z, xa_, za_, fout="../../Images/WedgeGeomA.png")
 
     return
