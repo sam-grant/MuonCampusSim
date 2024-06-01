@@ -229,7 +229,7 @@ def PlotGraph(x, y, xerr=[], yerr=[], title=None, xlabel=None, ylabel=None, fout
     # Clear memory
     plt.close()
 
-def PlotNormEntriesGraph(x, y, xerr=[], yerr=[], title=None, xlabel=None, ylabel=None, fout="scatter.png", NDPI=300):
+def PlotOffsetScanGraph(x, y, xerr=[], yerr=[], title=None, xlabel=None, ylabel=None, fout="scatter.png", NDPI=300):
 
    # Create a scatter plot with error bars using NumPy arrays 
 
@@ -290,6 +290,43 @@ def Plot2D(x, y, nBinsX=100, xmin=-1.0, xmax=1.0, nBinsY=100, ymin=-1.0, ymax=1.
     # Plot the 2D histogram
     norm = None
     if logZ: norm=LogNorm()
+    im = ax.imshow(hist.T, cmap='inferno', extent=[xmin, xmax, ymin, ymax], aspect='auto', origin='lower', norm=norm) # vmax=np.max(hist), , norm=cb.LogNorm())
+
+    # Add colourbar
+    if cb: plt.colorbar(im)
+
+    plt.title(title, fontsize=15, pad=10)
+    plt.xlabel(xlabel, fontsize=13, labelpad=10)
+    plt.ylabel(ylabel, fontsize=13, labelpad=10)
+
+     # Scientific notation
+    if (ax.get_xlim()[1] > 9999 or ax.get_xlim()[1] < 9.999e-3):
+        ax.xaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+        ax.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+        ax.xaxis.offsetText.set_fontsize(13)
+    if (ax.get_ylim()[1] > 9999 or ax.get_ylim()[1] < 9.999e-3):
+        ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+        ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+        ax.yaxis.offsetText.set_fontsize(13)
+
+    plt.savefig(fout, dpi=NDPI, bbox_inches="tight")
+    print("---> Written", fout)
+
+    plt.close()
+
+from matplotlib.patches import Rectangle
+
+def Plot2DWithWedge(x, y, nBinsX=100, xmin=-1.0, xmax=1.0, nBinsY=100, ymin=-1.0, ymax=1.0, x_offset=0.0, title=None, xlabel=None, ylabel=None, fout="hist.png", cb=True, NDPI=300, logZ=False):
+
+    # Create 2D histogram
+    hist, x_edges, y_edges = np.histogram2d(x, y, bins=[nBinsX, nBinsY], range=[[xmin, xmax], [ymin, ymax]])
+
+    # Set up the plot
+    fig, ax = plt.subplots()
+
+    # Plot the 2D histogram
+    norm = None
+    if logZ: norm=LogNorm()
     im = ax.imshow(hist.T, cmap='inferno', extent=[xmin, xmax, ymin, ymax], aspect='auto', origin='lower', vmax=np.max(hist), norm=norm) # , norm=cb.LogNorm())
 
     # Add colourbar
@@ -298,6 +335,22 @@ def Plot2D(x, y, nBinsX=100, xmin=-1.0, xmax=1.0, nBinsY=100, ymin=-1.0, ymax=1.
     plt.title(title, fontsize=15, pad=10)
     plt.xlabel(xlabel, fontsize=13, labelpad=10)
     plt.ylabel(ylabel, fontsize=13, labelpad=10)
+
+    # Draw wedge
+    wedge_length = (3.15-2.37) * 24.5
+    x_start = (x_offset - wedge_length) # already in mm
+    x_end = x_offset 
+    y_start = (1.97/2) * 24.5
+    y_end = -y_start 
+
+    ax.plot([x_start, x_end], [y_start, y_start], 'w--')  # Bottom edge
+    ax.plot([x_end, x_end], [y_start, y_end], 'w--')      # Right edge
+    ax.plot([x_end, x_start], [y_end, y_end], 'w--')      # Top edge
+    ax.plot([x_start, x_start], [y_end, y_start], 'w--')  # Left edge
+
+
+    # Add the rectangle to the plot
+    # ax.add_patch(wedge)
 
      # Scientific notation
     if (ax.get_xlim()[1] > 9999 or ax.get_xlim()[1] < 9.999e-3):
@@ -533,7 +586,56 @@ def Plot1DLossesOverlay(data_dict, nbins=100, xmin=-1.0, xmax=1.0, title=None, x
         ax.yaxis.offsetText.set_fontsize(13)
 
     # Add legend to the plot
-    ax.legend(loc="upper left", frameon=False, fontsize=legFontSize)
+    ax.legend(loc="best", frameon=False, fontsize=legFontSize)
+
+    # Save the figure
+    plt.savefig(fout, dpi=NDPI, bbox_inches="tight")
+    print("---> Written", fout)
+
+    # Clear memory
+    plt.close()
+
+def PlotOffsetScanHists(data_dict, nbins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, ylabel=None, fout="hist.png", legPos="best", NDPI=300, includeBlack=False, logY=False, legFontSize=12, colours_extended=False):
+
+    # Create figure and axes
+    fig, ax = plt.subplots()
+
+    # colours = colours
+    # if colours_extended: colours = GetExtendedColours(len(data_dict))
+
+    # Iterate over the hists_dict and plot each one
+    for i, (label, hist) in enumerate(data_dict.items()):
+        colour = colours[i]
+        if not includeBlack: colour = colours[i+1]
+        # ax.hist(hist, bins=nbins, range=(xmin, xmax), histtype='step', linewidth=1.0, fill=False, density=False, label=label, log=logY)
+        counts, bin_edges, _ = ax.hist(hist, bins=nbins, range=(xmin, xmax), histtype='step', edgecolor=colour, linewidth=1.0, fill=False, density=False, color=colour, label=label, log=logY)
+
+    # Set x-axis limits
+    ax.set_xlim(xmin, xmax)
+
+    ax.set_title(title, fontsize=15, pad=10)
+    ax.set_xlabel(xlabel, fontsize=13, labelpad=10) 
+    ax.set_ylabel(ylabel, fontsize=13, labelpad=10) 
+
+    # Set font size of tick labels on x and y axes
+    ax.tick_params(axis='x', labelsize=13)  # Set x-axis tick label font size
+    ax.tick_params(axis='y', labelsize=13)  # Set y-axis tick label font size
+    
+    # plt.axvline(x=0, color='gray', linestyle='-', linewidth=1, zorder=0)
+    # plt.axvline(x=0.002, color='gray', linestyle='--', linewidth=1, zorder=0)
+    # plt.axvline(x=-0.002, color='gray', linestyle='--', linewidth=1, zorder=0)
+
+    if (ax.get_xlim()[1] > 9999 or ax.get_xlim()[1] < 9.999e-3):
+        ax.xaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+        ax.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+        ax.xaxis.offsetText.set_fontsize(13)
+    if (ax.get_ylim()[1] > 9999 or ax.get_ylim()[1] < 9.999e-3):
+        ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+        ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+        ax.yaxis.offsetText.set_fontsize(13)
+
+    # Add legend to the plot
+    ax.legend(loc=legPos, frameon=False, fontsize=legFontSize)
 
     # Save the figure
     plt.savefig(fout, dpi=NDPI, bbox_inches="tight")
