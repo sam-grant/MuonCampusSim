@@ -13,6 +13,12 @@ import math
 import Utils as ut
 
 # --------------------
+# Globals 
+# --------------------
+
+stats = "low_stats"
+
+# --------------------
 # Helpers 
 # --------------------
 
@@ -89,44 +95,44 @@ columns_ = ["PID", "s", "x", "px", "y", "py", "z", "pz", "ele", "sx", "sy", "sz"
 #     "Plus10mm": "$+10$ mm"
 # }
 
-configs_ = { 
-    "0mmTest": "$0$ mm",
-    "NoWedge": "No wedge",
-    "Minus10mm": "$-10$ mm",
-    "Minus5mm": "$-5$ mm",
-    "0mm": "$0$ mm",
-    "Plus5mm": "$+5$ mm",
-    "Plus5mmTest": "$+5$ mm",
-    "Plus9mmTest": "$+9$ mm",
-    "Plus10mm": "$+10$ mm"
-}
-
 # configs_ = { 
 #     "NoWedge": "No wedge",
-#     # "Minus10mm": "$-10$ mm",
-#     # "Minus9.55mm": "$-9.55$ mm",
-#     # "Minus9mm": "$-9$ mm",
-#     "Minus8mm": "$-8$ mm",
-#     "Minus7mm": "$-7$ mm",
-#     # "Minus6mm": "$-6$ mm",
-#     # "Minus5mm": "$-5$ mm",
-#     # "Minus4mm": "$-4$ mm",
-#     # "Minus3mm": "$-3$ mm",
-#     # "Minus2mm": "$-2$ mm",
-#     # "Minus1mm": "$-1$ mm",
-#     # "0mm": "$0$ mm",
-#     # "Plus1mm": "$+1$ mm",
-#     # "Plus2mm": "$+2$ mm",
-#     # "Plus3mm": "$+3$ mm",
-#     # "Plus4mm": "$+4$ mm",
-#     # "Plus5mm": "$+5$ mm",
-#     # "Plus6mm": "$+6$ mm",
-#     # "Plus7mm": "$+7$ mm",
-#     # "Plus8mm": "$+8$ mm",
-#     # "Plus9mm": "$+9$ mm",
-#     # "Plus9.55mm": "$+9.55$ mm",
-#     # "Plus10mm": "$+10$ mm"
+#     "Minus10mm": "$-10$ mm",
+#     "Minus5mm": "$-5$ mm",
+#     "0mm": "$0$ mm",
+#     "Plus5mm": "$+5$ mm",
+#     "Plus10mm": "$+10$ mm"
 # }
+
+# configs_ = { 
+#     "Minus10mm": "$-10$ mm",
+#     "Plus10mm": "$+10$ mm"
+# }
+
+configs_ = { 
+    "NoWedge": "No wedge",
+    "Minus10mm": "$-10$ mm",
+    "Minus9mm": "$-9$ mm",
+    "Minus8mm": "$-8$ mm",
+    "Minus7mm": "$-7$ mm",
+    "Minus6mm": "$-6$ mm",
+    "Minus5mm": "$-5$ mm",
+    "Minus4mm": "$-4$ mm",
+    "Minus3mm": "$-3$ mm",
+    "Minus2mm": "$-2$ mm",
+    "Minus1mm": "$-1$ mm",
+    "0mm": "$0$ mm",
+    "Plus1mm": "$+1$ mm",
+    "Plus2mm": "$+2$ mm",
+    "Plus3mm": "$+3$ mm",
+    "Plus4mm": "$+4$ mm",
+    "Plus5mm": "$+5$ mm",
+    "Plus6mm": "$+6$ mm",
+    "Plus7mm": "$+7$ mm",
+    "Plus8mm": "$+8$ mm",
+    "Plus9mm": "$+9$ mm",
+    "Plus10mm": "$+10$ mm"
+}
 
 # --------------------
 # Run
@@ -140,8 +146,8 @@ def RunSingleOffset(ele="end", offset="0mm", maskMom=False, MeV=False):
     hists_ = {alias: [] for alias in configs_.values()}
     histsMasked_ = {alias: [] for alias in configs_.values()}
     # File names
-    finNameNoWedge = f"../../Data2/low_stats/NoWedge/muon_{ele}.dat"
-    finNameWedge = f"../../Data2/low_stats/{offset}/muon_{ele}.dat"
+    finNameNoWedge = f"../../Data2/{stats}/NoWedge/muon_{ele}.dat"
+    finNameWedge = f"../../Data2/{stats}/{offset}/muon_{ele}.dat"
 
     print(f"---> Analysing:\n{finNameWedge}, {finNameNoWedge}")
 
@@ -165,9 +171,9 @@ def RunSingleOffset(ele="end", offset="0mm", maskMom=False, MeV=False):
         dataWedge["pz"] = dataWedge["pz"]*p_magic + p_magic
         print(f"Mean momentum with no wedge = {np.mean(dataNoWedge['pz'])}")
         # Fill histogram
-        ut.Plot1DOverlay({"No wedge" : dataNoWedge["pz"], configs_[offset] : dataWedge["pz"] }, nbins=70, xmin=2980, xmax=3220, xlabel="Momentum [MeV/c]", ylabel=r"$\mu^{+}$ / 0.002", fout=f"../../Images2/low_stats/SingleOffset/h1_muons_{ele}_pz_MeV_NoWedge_vs_{offset}{maskMomTag}.png") 
+        ut.Plot1DOverlay({"No wedge" : dataNoWedge["pz"], configs_[offset] : dataWedge["pz"] }, nbins=70, xmin=2980, xmax=3220, xlabel="Momentum [MeV/c]", ylabel=r"$\mu^{+}$ / 0.002", fout=f"../../Images2/{stats}/SingleOffset/h1_muons_{ele}_pz_MeV_NoWedge_vs_{offset}{maskMomTag}.png") 
     else: 
-        ut.Plot1DOverlay({"No wedge" : dataNoWedge["pz"], configs_[offset] : dataWedge["pz"] }, nbins=28, xmin=-0.07, xmax=0.07, xlabel="$\Delta p / p_{0}$", ylabel="Muons / 0.005", fout=f"../../Images2/low_stats/SingleOffset/h1_muons_{ele}_pz_NoWedge_vs_{offset}{maskMomTag}.png") 
+        ut.Plot1DOverlayWithStats({"No wedge" : dataNoWedge["pz"], configs_[offset] : dataWedge["pz"] }, nbins=28, xmin=-0.07, xmax=0.07, xlabel="$\Delta p / p_{0}$", ylabel="Muons / 0.005", fout=f"../../Images2/{stats}/SingleOffset/h1_muons_{ele}_pz_NoWedge_vs_{offset}{maskMomTag}.png") 
     
     return
 
@@ -185,7 +191,7 @@ def RunOffsetScan(ele="end"):
 
     for config, alias in configs_.items():
 
-        finName = f"../../Data2/low_stats/{config}/muon_all_{ele}.dat"
+        finName = f"../../Data2/{stats}/{config}/muon_all_{ele}.dat"
 
         print(f"---> Analysing {finName}")
 
@@ -193,7 +199,7 @@ def RunOffsetScan(ele="end"):
         data = pd.read_csv(finName, delim_whitespace=True, header=None, names=columns_)
 
         # Plot single distribution
-        # ut.Plot1D(data=data["pz"], nbins=28, xmin=-0.07, xmax=0.07, title=alias, xlabel="$\Delta p / p_{0}$", ylabel="Muons / 0.005", fout=f"../../Images2/low_stats/h1_muons_{ele}_pz_{config}.png") 
+        # ut.Plot1D(data=data["pz"], nbins=28, xmin=-0.07, xmax=0.07, title=alias, xlabel="$\Delta p / p_{0}$", ylabel="Muons / 0.005", fout=f"../../Images2/{stats}/h1_muons_{ele}_pz_{config}.png") 
 
         # Append to list
         hists_[alias] = data["pz"]
@@ -237,11 +243,11 @@ def RunOffsetScan(ele="end"):
 
     print()
 
-    ut.PlotOffsetScanHists(selectedHists_, nbins=70, xmin=-0.07, xmax=0.07, title=ele, xlabel="$\Delta p / p_{0}$", ylabel="$\mu^{+}$ / 0.002", fout=f"../../Images2/low_stats/OffsetScan/h1_muons_{ele}_pz_overlay.png", includeBlack=True, colours_extended=False) 
-    ut.PlotOffsetScanHists(selectedHistsMasked_, nbins=70, xmin=-0.07, xmax=0.07, title=f"{ele}, $|\Delta p / p_{0}| \leq 0.2\%$", xlabel="$\Delta p / p_{0}$", ylabel="$\mu^{+}$ / 0.002", fout=f"../../Images2/low_stats/OffsetScan/h1_muons_{ele}_pz_overlay_pm0.002.png", includeBlack=True, colours_extended=False) 
+    ut.PlotOffsetScanHists(selectedHists_, nbins=70, xmin=-0.07, xmax=0.07, title=ele, xlabel="$\Delta p / p_{0}$", ylabel="$\mu^{+}$ / 0.002", fout=f"../../Images2/{stats}/OffsetScan/h1_muons_{ele}_pz_overlay.png", includeBlack=True, colours_extended=False) 
+    ut.PlotOffsetScanHists(selectedHistsMasked_, nbins=70, xmin=-0.07, xmax=0.07, title=f"{ele}, $|\Delta p / p_{0}| \leq 0.2\%$", xlabel="$\Delta p / p_{0}$", ylabel="$\mu^{+}$ / 0.002", fout=f"../../Images2/{stats}/OffsetScan/h1_muons_{ele}_pz_overlay_pm0.002.png", includeBlack=True, colours_extended=False) 
 
     # Plot the relative number of muons
-    ut.PlotOffsetScanGraph(x=offsets_, y=R_, yerr=deltaR_, title=ele, xlabel="Wedge offset [mm]", ylabel=r"$\mu^{+} (|\Delta p / p_{0}| \leq 0.2\%)$ [normalised]", fout=f"../../Images2/low_stats/OffsetScan/gr_muons_{ele}_norm_entries_pm0.002.png")
+    ut.PlotOffsetScanGraph(x=offsets_, y=R_, yerr=deltaR_, title=ele, xlabel="Wedge offset [mm]", ylabel=r"$\mu^{+} (|\Delta p / p_{0}| \leq 0.2\%)$ [normalised]", fout=f"../../Images2/{stats}/OffsetScan/gr_muons_{ele}_norm_entries_pm0.002.png")
 
     return
 
@@ -250,10 +256,10 @@ def RunWedgeCooling(config="0mm"):
     print("\n---> RunWedgeCooling():")
 
     # Get data
-    finNameBefore = f"../../Data2/low_stats/{config}/muon_all_before_wedge.dat"
-    finNameAfter = f"../../Data2/low_stats/{config}/muon_all_after_wedge.dat"
-    finNameEnd = f"../../Data2/low_stats/{config}/muon_all_end.dat"
-    finNameLoss = f"../../Data2/low_stats/{config}/muon_lost.dat"
+    finNameBefore = f"../../Data2/{stats}/{config}/muon_all_before_wedge.dat"
+    finNameAfter = f"../../Data2/{stats}/{config}/muon_all_after_wedge.dat"
+    finNameEnd = f"../../Data2/{stats}/{config}/muon_all_end.dat"
+    finNameLoss = f"../../Data2/{stats}/{config}/muon_lost.dat"
 
     print(f"---> Analysing {finNameBefore}, {finNameAfter}, {finNameEnd}")
 
@@ -274,57 +280,70 @@ def RunWedgeCooling(config="0mm"):
     print(len(dataBefore),",",len(dataAfter),",",len(dataEnd),",",len(dataBeforeToEnd),",",len(dataAfterToEnd),",",len(dataBeforeToLoss),",",len(dataAfterToLoss))
 
     # Longtiduinal momentum before and after the wedge
-    ut.Plot1DOverlay({ "Before" : dataBefore["pz"] ,"After" : dataAfter["pz"] }, nbins=70, xmin=-0.07, xmax=0.07, title=r"All $\mu^{+}$, "+configs_[config]+" offset", xlabel="$\Delta p / p_{0}$", ylabel=r"$\mu^{+}$ / 0.002", fout=f"../../Images2/low_stats/WedgeCooling/h1_muons_before_after_all_overlay_{config}.png", includeBlack=False, colours_extended=False) 
-    ut.Plot1DOverlay({ "Before" : dataBeforeToLoss["pz"] ,"After" : dataAfterToLoss["pz"] }, nbins=70, xmin=-0.07, xmax=0.07, title=r"Lost $\mu^{+}$, "+configs_[config]+" offset", xlabel="$\Delta p / p_{0}$", ylabel=r"$\mu^{+}$ / 0.002", fout=f"../../Images2/low_stats/WedgeCooling/h1_muons_before_after_loss_overlay_{config}.png", includeBlack=False, colours_extended=False) 
-    ut.Plot1DOverlay({ "Before" : dataBeforeToEnd["pz"] ,"After" : dataAfterToEnd["pz"] }, nbins=70, xmin=-0.07, xmax=0.07, title=r"Surviving $\mu^{+}$, "+configs_[config]+" offset", xlabel="$\Delta p / p_{0}$", ylabel=r"$\mu^{+}$ / 0.002", fout=f"../../Images2/low_stats/WedgeCooling/h1_muons_before_after_end_overlay_{config}.png", includeBlack=False, colours_extended=False) 
+    ut.Plot1DOverlay({ "Before" : dataBefore["pz"] ,"After" : dataAfter["pz"] }, nbins=70, xmin=-0.07, xmax=0.07, title=r"All $\mu^{+}$, "+configs_[config]+" offset", xlabel="$\Delta p / p_{0}$", ylabel=r"$\mu^{+}$ / 0.002", fout=f"../../Images2/{stats}/WedgeCooling/h1_muons_before_after_all_overlay_{config}.png", includeBlack=False, colours_extended=False) 
+    ut.Plot1DOverlay({ "Before" : dataBeforeToLoss["pz"] ,"After" : dataAfterToLoss["pz"] }, nbins=70, xmin=-0.07, xmax=0.07, title=r"Lost $\mu^{+}$, "+configs_[config]+" offset", xlabel="$\Delta p / p_{0}$", ylabel=r"$\mu^{+}$ / 0.002", fout=f"../../Images2/{stats}/WedgeCooling/h1_muons_before_after_loss_overlay_{config}.png", includeBlack=False, colours_extended=False) 
+    ut.Plot1DOverlay({ "Before" : dataBeforeToEnd["pz"] ,"After" : dataAfterToEnd["pz"] }, nbins=70, xmin=-0.07, xmax=0.07, title=r"Surviving $\mu^{+}$, "+configs_[config]+" offset", xlabel="$\Delta p / p_{0}$", ylabel=r"$\mu^{+}$ / 0.002", fout=f"../../Images2/{stats}/WedgeCooling/h1_muons_before_after_end_overlay_{config}.png", includeBlack=False, colours_extended=False) 
 
     # Transverse momentum before and after the wedge
-    ut.Plot1DOverlay({ "Before" : np.sqrt(dataBefore["px"]**2+dataBefore["py"]**2) ,"After" : np.sqrt(dataAfter["px"]**2+dataAfter["py"]**2) }, nbins=80, xmin=0, xmax=0.04, title=r"All $\mu^{+}$, "+configs_[config]+" offset", xlabel="$p_{T}/p_{0}$", ylabel=r"$\mu^{+}$ / 0.0005", fout=f"../../Images2/low_stats/WedgeCooling/h1_muons_pT_before_after_all_overlay_{config}.png", includeBlack=False, colours_extended=False) 
-    ut.Plot1DOverlay({ "Before" : np.sqrt(dataBeforeToLoss["px"]**2+dataBeforeToLoss["py"]**2) ,"After" : np.sqrt(dataAfterToLoss["px"]**2+dataAfterToLoss["py"]**2) }, nbins=80, xmin=0, xmax=0.04, title=r"Lost $\mu^{+}$, "+configs_[config]+" offset", xlabel="$p_{T}/p_{0}$", ylabel=r"$\mu^{+}$ / 0.0005", fout=f"../../Images2/low_stats/WedgeCooling/h1_muons_pT_before_after_loss_overlay_{config}.png", includeBlack=False, colours_extended=False) 
-    ut.Plot1DOverlay({ "Before" : np.sqrt(dataBeforeToEnd["px"]**2+dataBeforeToEnd["py"]**2) ,"After" : np.sqrt(dataAfterToEnd["px"]**2+dataAfterToEnd["py"]**2) }, nbins=80, xmin=0, xmax=0.04, title=r"Surviving $\mu^{+}$, "+configs_[config]+" offset", xlabel="$p_{T}/p_{0}$", ylabel=r"$\mu^{+}$ / 0.0005", fout=f"../../Images2/low_stats/WedgeCooling/h1_muons_pT_before_after_end_overlay_{config}.png", includeBlack=False, colours_extended=False) 
+    ut.Plot1DOverlay({ "Before" : np.sqrt(dataBefore["px"]**2+dataBefore["py"]**2) ,"After" : np.sqrt(dataAfter["px"]**2+dataAfter["py"]**2) }, nbins=80, xmin=0, xmax=0.04, title=r"All $\mu^{+}$, "+configs_[config]+" offset", xlabel="$p_{T}/p_{0}$", ylabel=r"$\mu^{+}$ / 0.0005", fout=f"../../Images2/{stats}/WedgeCooling/h1_muons_pT_before_after_all_overlay_{config}.png", includeBlack=False, colours_extended=False) 
+    ut.Plot1DOverlay({ "Before" : np.sqrt(dataBeforeToLoss["px"]**2+dataBeforeToLoss["py"]**2) ,"After" : np.sqrt(dataAfterToLoss["px"]**2+dataAfterToLoss["py"]**2) }, nbins=80, xmin=0, xmax=0.04, title=r"Lost $\mu^{+}$, "+configs_[config]+" offset", xlabel="$p_{T}/p_{0}$", ylabel=r"$\mu^{+}$ / 0.0005", fout=f"../../Images2/{stats}/WedgeCooling/h1_muons_pT_before_after_loss_overlay_{config}.png", includeBlack=False, colours_extended=False) 
+    ut.Plot1DOverlay({ "Before" : np.sqrt(dataBeforeToEnd["px"]**2+dataBeforeToEnd["py"]**2) ,"After" : np.sqrt(dataAfterToEnd["px"]**2+dataAfterToEnd["py"]**2) }, nbins=80, xmin=0, xmax=0.04, title=r"Surviving $\mu^{+}$, "+configs_[config]+" offset", xlabel="$p_{T}/p_{0}$", ylabel=r"$\mu^{+}$ / 0.0005", fout=f"../../Images2/{stats}/WedgeCooling/h1_muons_pT_before_after_end_overlay_{config}.png", includeBlack=False, colours_extended=False) 
 
     # Emittance momentum before and after the wedge
-    #
-    #
-    #
-    #
-    #
+    # p_magic = 3094
+    # dataNoWedge["pz"] = dataNoWedge["pz"]*p_magic + p_magic
+    ut.Plot2D(x=dataBefore["x"]*1e3, y=dataBefore["px"], nBinsX=160, xmin=-40, xmax=40, nBinsY=200, ymin=-0.04, ymax=0.04, title=r"$\epsilon_{x}$", xlabel="x [mm]", ylabel=r"$p_{x}$ [MeV]", fout=f"../../Images2/{stats}/WedgeCooling/h2_epsilon_x_muons_before_{config}.png") 
+    ut.Plot2D(x=dataBefore["y"]*1e3, y=dataBefore["py"], nBinsX=160, xmin=-40, xmax=40, nBinsY=200, ymin=-0.04, ymax=0.04, title=r"$\epsilon_{y}$", xlabel="y [mm]", ylabel=r"$p_{y}$ [MeV]", fout=f"../../Images2/{stats}/WedgeCooling/h2_epsilon_y_muons_before_{config}.png") 
+    # ut.Plot2D(x=dataBefore["z"]*1e3, y=dataBefore["pz"], nBinsX=2000, xmin=-200, xmax=200, nBinsY=200, ymin=-0.07, ymax=0.07, title=r"$\epsilon_{z}$", xlabel="z [mm]", ylabel=r"$\Delta p / p_{0}$", fout=f"../../Images2/{stats}/WedgeCooling/h2_epsilon_z_muons_before_{config}.png") 
+    
+    ut.Plot2D(x=dataAfter["x"]*1e3, y=dataAfter["px"], nBinsX=160, xmin=-40, xmax=40, nBinsY=200, ymin=-0.04, ymax=0.04, title=r"$\epsilon_{x}$", xlabel="x [mm]", ylabel=r"$p_{x}$ [MeV]", fout=f"../../Images2/{stats}/WedgeCooling/h2_epsilon_x_muons_after_{config}.png") 
+    ut.Plot2D(x=dataAfter["y"]*1e3, y=dataAfter["py"], nBinsX=160, xmin=-40, xmax=40, nBinsY=200, ymin=-0.04, ymax=0.04, title=r"$\epsilon_{y}$", xlabel="y [mm]", ylabel=r"$p_{y}$ [MeV]", fout=f"../../Images2/{stats}/WedgeCooling/h2_epsilon_y_muons_after_{config}.png") 
+    # ut.Plot2D(x=dataAfter["z"]*1e3, y=dataAfter["pz"], nBinsX=2000, xmin=-200, xmax=200, nBinsY=200, ymin=-0.07, ymax=0.07, title=r"$\epsilon_{z}$", xlabel="z [mm]", ylabel=r"$\Delta p / p_{0}$", fout=f"../../Images2/{stats}/WedgeCooling/h2_epsilon_z_muons_after_{config}.png") 
 
     # Transverse position before and after the wedge and at the end of the beamline
-    ut.Plot2D(x=dataBefore["x"]*1e3, y=dataBefore["y"]*1e3, nBinsX=80, xmin=-40, xmax=40, nBinsY=80, ymin=-40, ymax=40, title=r"All $\mu^{+}$,"+" before wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel="y [mm]", fout=f"../../Images2/low_stats/WedgeCooling/h2_xy_muons_before_all_{config}.png") 
-    ut.Plot2D(x=dataAfter["x"]*1e3, y=dataAfter["y"]*1e3, nBinsX=80, xmin=-40, xmax=40, nBinsY=80, ymin=-40, ymax=40, title=r"All $\mu^{+}$,"+" after wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel="y [mm]", fout=f"../../Images2/low_stats/WedgeCooling/h2_xy_muons_after_all_{config}.png")
-    ut.Plot2D(x=dataBeforeToLoss["x"]*1e3, y=dataBeforeToLoss["y"]*1e3, nBinsX=80, xmin=-40, xmax=40, nBinsY=80, ymin=-40, ymax=40, title=r"Lost $\mu^{+}$,"+" before wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel="y [mm]", fout=f"../../Images2/low_stats/WedgeCooling/h2_xy_muons_before_loss_{config}.png") 
-    ut.Plot2D(x=dataAfterToLoss["x"]*1e3, y=dataAfterToLoss["y"]*1e3, nBinsX=80, xmin=-40, xmax=40, nBinsY=80, ymin=-40, ymax=40, title=r"Lost $\mu^{+}$,"+" after wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel="y [mm]", fout=f"../../Images2/low_stats/WedgeCooling/h2_xy_muons_after_loss_{config}.png")
-    ut.Plot2D(x=dataEnd["x"]*1e3, y=dataEnd["y"]*1e3, nBinsX=80, xmin=-40, xmax=40, nBinsY=80, ymin=-40, ymax=40, title=r"All $\mu^{+}$,"+" end, "+configs_[config]+" offset", xlabel="x [mm]", ylabel="y [mm]", fout=f"../../Images2/low_stats/WedgeCooling/h2_xy_muons_end_all_{config}.png") 
+    ut.Plot2D(x=dataBefore["x"]*1e3, y=dataBefore["y"]*1e3, nBinsX=80, xmin=-40, xmax=40, nBinsY=80, ymin=-40, ymax=40, title=r"All $\mu^{+}$,"+" before wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel="y [mm]", fout=f"../../Images2/{stats}/WedgeCooling/h2_xy_muons_before_all_{config}.png") 
+    ut.Plot2D(x=dataAfter["x"]*1e3, y=dataAfter["y"]*1e3, nBinsX=80, xmin=-40, xmax=40, nBinsY=80, ymin=-40, ymax=40, title=r"All $\mu^{+}$,"+" after wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel="y [mm]", fout=f"../../Images2/{stats}/WedgeCooling/h2_xy_muons_after_all_{config}.png")
+    ut.Plot2D(x=dataBeforeToLoss["x"]*1e3, y=dataBeforeToLoss["y"]*1e3, nBinsX=80, xmin=-40, xmax=40, nBinsY=80, ymin=-40, ymax=40, title=r"Lost $\mu^{+}$,"+" before wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel="y [mm]", fout=f"../../Images2/{stats}/WedgeCooling/h2_xy_muons_before_loss_{config}.png") 
+    ut.Plot2D(x=dataAfterToLoss["x"]*1e3, y=dataAfterToLoss["y"]*1e3, nBinsX=80, xmin=-40, xmax=40, nBinsY=80, ymin=-40, ymax=40, title=r"Lost $\mu^{+}$,"+" after wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel="y [mm]", fout=f"../../Images2/{stats}/WedgeCooling/h2_xy_muons_after_loss_{config}.png")
+    ut.Plot2D(x=dataEnd["x"]*1e3, y=dataEnd["y"]*1e3, nBinsX=80, xmin=-40, xmax=40, nBinsY=80, ymin=-40, ymax=40, title=r"All $\mu^{+}$,"+" end, "+configs_[config]+" offset", xlabel="x [mm]", ylabel="y [mm]", fout=f"../../Images2/{stats}/WedgeCooling/h2_xy_muons_end_all_{config}.png") 
   
     # With wedge illustation
-    x_offset=ExtractNumber(config)
-    ut.Plot2DWithWedge(x=dataBefore["x"]*1e3, y=dataBefore["y"]*1e3, nBinsX=80, xmin=-40, xmax=40, nBinsY=80, ymin=-40, ymax=40, x_offset=x_offset, title=r"All $\mu^{+}$,"+" before wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel="y [mm]", fout=f"../../Images2/low_stats/WedgeCooling/h2_xy_muons_before_all_with_wedge_{config}.png") 
-    ut.Plot2DWithWedge(x=dataAfter["x"]*1e3, y=dataAfter["y"]*1e3, nBinsX=80, xmin=-40, xmax=40, nBinsY=80, ymin=-40, ymax=40, x_offset=x_offset, title=r"All $\mu^{+}$,"+" after wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel="y [mm]", fout=f"../../Images2/low_stats/WedgeCooling/h2_xy_muons_after_all_with_wedge_{config}.png")
-    ut.Plot2DWithWedge(x=dataBeforeToLoss["x"]*1e3, y=dataBeforeToLoss["y"]*1e3, nBinsX=80, xmin=-40, xmax=40, nBinsY=80, ymin=-40, ymax=40, x_offset=x_offset, title=r"Lost $\mu^{+}$,"+" before wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel="y [mm]", fout=f"../../Images2/low_stats/WedgeCooling/h2_xy_muons_before_loss_with_wedge_{config}.png") 
-    ut.Plot2DWithWedge(x=dataAfterToLoss["x"]*1e3, y=dataAfterToLoss["y"]*1e3, nBinsX=80, xmin=-40, xmax=40, nBinsY=80, ymin=-40, ymax=40, x_offset=x_offset, title=r"Lost $\mu^{+}$,"+" after wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel="y [mm]", fout=f"../../Images2/low_stats/WedgeCooling/h2_xy_muons_after_loss_with_wedge_{config}.png")
+    if config != "NoWedge":
+        x_offset=ExtractNumber(config)
+        ut.Plot2DWith2DWedge(x=dataBefore["x"]*1e3, y=dataBefore["y"]*1e3, nBinsX=160, xmin=-40, xmax=40, nBinsY=160, ymin=-40, ymax=40, x_offset=x_offset, title=r"All $\mu^{+}$,"+" before wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel="y [mm]", fout=f"../../Images2/{stats}/WedgeCooling/h2_xy_muons_before_all_with_wedge_{config}.png") 
+        ut.Plot2DWith2DWedge(x=dataAfter["x"]*1e3, y=dataAfter["y"]*1e3, nBinsX=160, xmin=-40, xmax=40, nBinsY=160, ymin=-40, ymax=40, x_offset=x_offset, title=r"All $\mu^{+}$,"+" after wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel="y [mm]", fout=f"../../Images2/{stats}/WedgeCooling/h2_xy_muons_after_all_with_wedge_{config}.png")
+        ut.Plot2DWith2DWedge(x=dataBeforeToLoss["x"]*1e3, y=dataBeforeToLoss["y"]*1e3, nBinsX=160, xmin=-40, xmax=40, nBinsY=160, ymin=-40, ymax=40, x_offset=x_offset, title=r"Lost $\mu^{+}$,"+" before wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel="y [mm]", fout=f"../../Images2/{stats}/WedgeCooling/h2_xy_muons_before_loss_with_wedge_{config}.png") 
+        ut.Plot2DWith2DWedge(x=dataAfterToLoss["x"]*1e3, y=dataAfterToLoss["y"]*1e3, nBinsX=160, xmin=-40, xmax=40, nBinsY=160, ymin=-40, ymax=40, x_offset=x_offset, title=r"Lost $\mu^{+}$,"+" after wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel="y [mm]", fout=f"../../Images2/{stats}/WedgeCooling/h2_xy_muons_after_loss_with_wedge_{config}.png")
 
     # Momentum versus x-position before and after the wedge
-    ut.Plot2D(x=dataBefore["x"]*1e3, y=dataBefore["pz"], nBinsX=80, xmin=-40, xmax=40, nBinsY=28, ymin=-0.07, ymax=0.07, title=r"All $\mu^{+}$,"+" before wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel=r"$\Delta p / p_{0}$", fout=f"../../Images2/low_stats/WedgeCooling/h2_xpz_muons_before_all_{config}.png") 
-    ut.Plot2D(x=dataAfter["x"]*1e3, y=dataAfter["pz"], nBinsX=80, xmin=-40, xmax=40, nBinsY=28, ymin=-0.07, ymax=0.07, title=r"All $\mu^{+}$,"+" after wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel=r"$\Delta p / p_{0}$", fout=f"../../Images2/low_stats/WedgeCooling/h2_xpz_muons_after_all_{config}.png")
+    ut.Plot2D(x=dataBefore["x"]*1e3, y=dataBefore["pz"], nBinsX=160, xmin=-40, xmax=40, nBinsY=140, ymin=-0.07, ymax=0.07, title=r"All $\mu^{+}$,"+" before wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel=r"$\Delta p / p_{0}$", fout=f"../../Images2/{stats}/WedgeCooling/h2_xpz_muons_before_all_{config}.png") 
+    ut.Plot2D(x=dataAfter["x"]*1e3, y=dataAfter["pz"], nBinsX=160, xmin=-40, xmax=40, nBinsY=140, ymin=-0.07, ymax=0.07, title=r"All $\mu^{+}$,"+" after wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel=r"$\Delta p / p_{0}$", fout=f"../../Images2/{stats}/WedgeCooling/h2_xpz_muons_after_all_{config}.png")
 
-    # ut.Plot2D(x=(dataAfter["pz"] - dataBefore["pz"]), y=dataBefore["x"]*1e3, nBinsX=28, xmin=-0.07, xmax=0.07, nBinsY=80, ymin=-40, ymax=40,  title=r"All $\mu^{+}$,"+" through wedge, "+configs_[config]+" offset", xlabel=r"$(\Delta p / p_{0})_{\mathrm{after}} - (\Delta p / p_{0})_{\mathrm{before}}$", ylabel="x [mm]", fout=f"../../Images2/low_stats/WedgeCooling/h2_deltapz_vs_x_muons_before_after_all_{config}.png") 
+    # ut.Plot2D(x=(dataAfter["pz"] - dataBefore["pz"]), y=dataBefore["x"]*1e3, nBinsX=28, xmin=-0.07, xmax=0.07, nBinsY=80, ymin=-40, ymax=40,  title=r"All $\mu^{+}$,"+" through wedge, "+configs_[config]+" offset", xlabel=r"$(\Delta p / p_{0})_{\mathrm{after}} - (\Delta p / p_{0})_{\mathrm{before}}$", ylabel="x [mm]", fout=f"../../Images2/{stats}/WedgeCooling/h2_deltapz_vs_x_muons_before_after_all_{config}.png") 
 
     # Really useful plot showing that the wedge is orientated correctly 
-    ut.Plot2D(x=dataBefore["x"]*1e3, y=(dataAfter["pz"] - dataBefore["pz"]), nBinsX=80, xmin=-40, xmax=40, nBinsY=28, ymin=-0.07, ymax=0.07, title=r"All $\mu^{+}$"+", "+configs_[config]+" offset", xlabel="x [mm]", ylabel=r" $\Delta (\Delta p / p_{0})$",  fout=f"../../Images2/low_stats/WedgeCooling/h2_x_vs_deltapz_muons_before_after_all_{config}.png")     
-    ut.Plot2D(x=dataBefore["x"]*1e3, y=(dataAfter["pz"] - dataBefore["pz"]), nBinsX=80, xmin=-40, xmax=40, nBinsY=28, ymin=-0.07, ymax=0.07, title=r"All $\mu^{+}$"+", "+configs_[config]+" offset", xlabel="x [mm]", ylabel=r" $\Delta (\Delta p / p_{0})$",  logZ=True, fout=f"../../Images2/low_stats/WedgeCooling/h2_x_vs_deltapz_muons_before_after_all_log_{config}.png") 
-    ut.Plot2D(x=dataBefore["y"]*1e3, y=(dataAfter["pz"] - dataBefore["pz"]), nBinsX=80, xmin=-40, xmax=40, nBinsY=28, ymin=-0.07, ymax=0.07, title=r"All $\mu^{+}$"+", "+configs_[config]+" offset", xlabel="y [mm]", ylabel=r" $\Delta (\Delta p / p_{0})$",  fout=f"../../Images2/low_stats/WedgeCooling/h2_y_vs_deltapz_muons_before_after_all_{config}.png")     
-    ut.Plot2D(x=dataBefore["y"]*1e3, y=(dataAfter["pz"] - dataBefore["pz"]), nBinsX=80, xmin=-40, xmax=40, nBinsY=28, ymin=-0.07, ymax=0.07, title=r"All $\mu^{+}$"+", "+configs_[config]+" offset", xlabel="y [mm]", ylabel=r" $\Delta (\Delta p / p_{0})$",  logZ=True, fout=f"../../Images2/low_stats/WedgeCooling/h2_y_vs_deltapz_muons_before_after_all_log_{config}.png") 
-    # ut.Plot2D( x=dataBefore["x"]*1e3, y=(dataAfter["pz"] - dataBefore["pz"]), nBinsX=80, xmin=-40, xmax=40, nBinsY=28, ymin=-0.07, ymax=0.07, title=r"All $\mu^{+}$,"+" through wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel=r"$(\Delta p / p_{0})_{\mathrm{after}} - (\Delta p / p_{0})_{\mathrm{before}}$",  fout=f"../../Images2/low_stats/WedgeCooling/h2_x_vs_deltapz_muons_before_after_all_{config}.png")     
-    # ut.Plot2D(x=dataAfter["x"]*1e3, y=dataAfter["pz"], nBinsX=80, xmin=-40, xmax=40, nBinsY=28, ymin=-0.07, ymax=0.07, title=r"All $\mu^{+}$,"+" after wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel=r"$\Delta p / p_{0}$", fout=f"../../Images2/low_stats/WedgeCooling/h2_xpz_muons_after_all_{config}.png")
-    # ut.Plot2D(x=dataBeforeToLoss["x"]*1e3, y=dataBeforeToLoss["y"]*1e3, nBinsX=80, xmin=-40, xmax=40, nBinsY=80, ymin=-40, ymax=40, title=r"Lost $\mu^{+}$,"+" before wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel="y [mm]", fout=f"../../Images2/low_stats/WedgeCooling/h2_xy_muons_before_loss_{config}.png") 
-    # ut.Plot2D(x=dataAfterToLoss["x"]*1e3, y=dataAfterToLoss["y"]*1e3, nBinsX=80, xmin=-40, xmax=40, nBinsY=80, ymin=-40, ymax=40, title=r"Lost $\mu^{+}$,"+" after wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel="y [mm]", fout=f"../../Images2/low_stats/WedgeCooling/h2_xy_muons_after_loss_{config}.png")
+    ut.Plot2D(x=dataBefore["x"]*1e3, y=(dataAfter["pz"] - dataBefore["pz"]), nBinsX=160, xmin=-40, xmax=40, nBinsY=140, ymin=-0.07, ymax=0.07, title=configs_[config], xlabel="x [mm]", ylabel=r" $\Delta (\Delta p / p_{0})$",  fout=f"../../Images2/{stats}/WedgeCooling/h2_x_vs_deltapz_muons_before_after_all_{config}.png")     
+    ut.Plot2D(x=dataBefore["x"]*1e3, y=(dataAfter["pz"] - dataBefore["pz"]), nBinsX=160, xmin=-40, xmax=40, nBinsY=140, ymin=-0.07, ymax=0.07, title=configs_[config], xlabel="x [mm]", ylabel=r" $\Delta (\Delta p / p_{0})$",  logZ=True, fout=f"../../Images2/{stats}/WedgeCooling/h2_x_vs_deltapz_muons_before_after_all_log_{config}.png") 
+    ut.Plot2D(x=dataBefore["y"]*1e3, y=(dataAfter["pz"] - dataBefore["pz"]), nBinsX=160, xmin=-40, xmax=40, nBinsY=140, ymin=-0.07, ymax=0.07, title=configs_[config], xlabel="y [mm]", ylabel=r" $\Delta (\Delta p / p_{0})$",  fout=f"../../Images2/{stats}/WedgeCooling/h2_y_vs_deltapz_muons_before_after_all_{config}.png")     
+    ut.Plot2D(x=dataBefore["y"]*1e3, y=(dataAfter["pz"] - dataBefore["pz"]), nBinsX=160, xmin=-40, xmax=40, nBinsY=140, ymin=-0.07, ymax=0.07, title=configs_[config], xlabel="y [mm]", ylabel=r" $\Delta (\Delta p / p_{0})$",  logZ=True, fout=f"../../Images2/{stats}/WedgeCooling/h2_y_vs_deltapz_muons_before_after_all_log_{config}.png") 
+
+    if config != "NoWedge":
+        x_offset=ExtractNumber(config)
+        ut.Plot2DWith1DWedge(x=dataBefore["x"]*1e3, y=(dataAfter["pz"] - dataBefore["pz"]), nBinsX=160, xmin=-40, xmax=40, nBinsY=140, ymin=-0.07, ymax=0.07, x_offset=x_offset, title=configs_[config], xlabel="x [mm]", ylabel=r" $\Delta (\Delta p / p_{0})$",  fout=f"../../Images2/{stats}/WedgeCooling/h2_x_vs_deltapz_muons_before_after_all_with_wedge_{config}.png")     
+        ut.Plot2DWith1DWedge(x=dataBefore["x"]*1e3, y=(dataAfter["pz"] - dataBefore["pz"]), nBinsX=160, xmin=-40, xmax=40, nBinsY=140, ymin=-0.07, ymax=0.07, x_offset=x_offset, title=configs_[config], xlabel="x [mm]", ylabel=r" $\Delta (\Delta p / p_{0})$",  logZ=True, fout=f"../../Images2/{stats}/WedgeCooling/h2_x_vs_deltapz_muons_before_after_all_with_wedge_log_{config}.png") 
+        # ut.Plot2DWith1DWedge(x=dataBefore["y"]*1e3, y=(dataAfter["pz"] - dataBefore["pz"]), nBinsX=80, xmin=-40, xmax=40, nBinsY=28, ymin=-0.07, ymax=0.07, x_offset=x_offset, title=configs_[config], xlabel="y [mm]", ylabel=r" $\Delta (\Delta p / p_{0})$",  fout=f"../../Images2/{stats}/WedgeCooling/h2_y_vs_deltapz_muons_before_after_all_with_wedge_{config}.png")     
+        # ut.Plot2DWith1DWedge(x=dataBefore["y"]*1e3, y=(dataAfter["pz"] - dataBefore["pz"]), nBinsX=80, xmin=-40, xmax=40, nBinsY=28, ymin=-0.07, ymax=0.07, x_offset=x_offset, title=configs_[config], xlabel="y [mm]", ylabel=r" $\Delta (\Delta p / p_{0})$",  logZ=True, fout=f"../../Images2/{stats}/WedgeCooling/h2_y_vs_deltapz_muons_before_after_all_with_wedge_log_{config}.png") 
+
+    # ut.Plot2D( x=dataBefore["x"]*1e3, y=(dataAfter["pz"] - dataBefore["pz"]), nBinsX=80, xmin=-40, xmax=40, nBinsY=28, ymin=-0.07, ymax=0.07, title=r"All $\mu^{+}$,"+" through wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel=r"$(\Delta p / p_{0})_{\mathrm{after}} - (\Delta p / p_{0})_{\mathrm{before}}$",  fout=f"../../Images2/{stats}/WedgeCooling/h2_x_vs_deltapz_muons_before_after_all_{config}.png")     
+    # ut.Plot2D(x=dataAfter["x"]*1e3, y=dataAfter["pz"], nBinsX=80, xmin=-40, xmax=40, nBinsY=28, ymin=-0.07, ymax=0.07, title=r"All $\mu^{+}$,"+" after wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel=r"$\Delta p / p_{0}$", fout=f"../../Images2/{stats}/WedgeCooling/h2_xpz_muons_after_all_{config}.png")
+    # ut.Plot2D(x=dataBeforeToLoss["x"]*1e3, y=dataBeforeToLoss["y"]*1e3, nBinsX=80, xmin=-40, xmax=40, nBinsY=80, ymin=-40, ymax=40, title=r"Lost $\mu^{+}$,"+" before wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel="y [mm]", fout=f"../../Images2/{stats}/WedgeCooling/h2_xy_muons_before_loss_{config}.png") 
+    # ut.Plot2D(x=dataAfterToLoss["x"]*1e3, y=dataAfterToLoss["y"]*1e3, nBinsX=80, xmin=-40, xmax=40, nBinsY=80, ymin=-40, ymax=40, title=r"Lost $\mu^{+}$,"+" after wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel="y [mm]", fout=f"../../Images2/{stats}/WedgeCooling/h2_xy_muons_after_loss_{config}.png")
    
 
     # Momentum after versus before with projections
-    ut.Plot2DWith1DProj(x=dataBefore["pz"], y=dataAfter["pz"], nBinsX=28, xmin=-0.07, xmax=0.07, nBinsY=28, ymin=-0.07, ymax=0.07, title=r"All $\mu^{+}$,"+configs_[config]+" offset", xlabel=r"$\Delta p / p_{0}$ (before wedge)", ylabel=r"$\Delta p / p_{0}$ (after wedge)", fout=f"../../Images2/low_stats/WedgeCooling/h2_proj_pz_muons_before_after_all_{config}.png", logZ=True) 
-    ut.Plot2DWith1DProj(x=dataBeforeToLoss["pz"], y=dataAfterToLoss["pz"], nBinsX=28, xmin=-0.07, xmax=0.07, nBinsY=28, ymin=-0.07, ymax=0.07, title=r"Lost $\mu^{+}$,"+configs_[config]+" offset", xlabel=r"$\Delta p / p_{0}$ (before wedge)", ylabel=r"$\Delta p / p_{0}$ (after wedge)", fout=f"../../Images2/low_stats/WedgeCooling/h2_proj_pz_muons_before_after_loss_{config}.png", logZ=True) 
-    ut.Plot2DWith1DProj(x=dataBeforeToEnd["pz"], y=dataAfterToEnd["pz"], nBinsX=28, xmin=-0.07, xmax=0.07, nBinsY=28, ymin=-0.07, ymax=0.07, title=r"Surviving $\mu^{+}$,"+configs_[config]+" offset", xlabel=r"$\Delta p / p_{0}$ (before wedge)", ylabel=r"$\Delta p / p_{0}$ (after wedge)", fout=f"../../Images2/low_stats/WedgeCoolingh2_proj_pz_muons_before_after_end_{config}.png", logZ=True) 
+    ut.Plot2DWith1DProj(x=dataBefore["pz"], y=dataAfter["pz"], nBinsX=28, xmin=-0.07, xmax=0.07, nBinsY=28, ymin=-0.07, ymax=0.07, title=r"All $\mu^{+}$,"+configs_[config]+" offset", xlabel=r"$\Delta p / p_{0}$ (before wedge)", ylabel=r"$\Delta p / p_{0}$ (after wedge)", fout=f"../../Images2/{stats}/WedgeCooling/h2_proj_pz_muons_before_after_all_{config}.png", logZ=True) 
+    ut.Plot2DWith1DProj(x=dataBeforeToLoss["pz"], y=dataAfterToLoss["pz"], nBinsX=28, xmin=-0.07, xmax=0.07, nBinsY=28, ymin=-0.07, ymax=0.07, title=r"Lost $\mu^{+}$,"+configs_[config]+" offset", xlabel=r"$\Delta p / p_{0}$ (before wedge)", ylabel=r"$\Delta p / p_{0}$ (after wedge)", fout=f"../../Images2/{stats}/WedgeCooling/h2_proj_pz_muons_before_after_loss_{config}.png", logZ=True) 
+    ut.Plot2DWith1DProj(x=dataBeforeToEnd["pz"], y=dataAfterToEnd["pz"], nBinsX=28, xmin=-0.07, xmax=0.07, nBinsY=28, ymin=-0.07, ymax=0.07, title=r"Surviving $\mu^{+}$,"+configs_[config]+" offset", xlabel=r"$\Delta p / p_{0}$ (before wedge)", ylabel=r"$\Delta p / p_{0}$ (after wedge)", fout=f"../../Images2/{stats}/WedgeCooling/h2_proj_pz_muons_before_after_end_{config}.png", logZ=True) 
 
     return
 
@@ -333,7 +352,7 @@ def RunWedgeCooling(config="0mm"):
 #     print("\n---> RunCheckPosZ():")
 
 #     # Get data
-#     finName = f"../../Data2/low_stats/{config}/muon_decay.dat"
+#     finName = f"../../Data2/{stats}/{config}/muon_decay.dat"
 #     print(f"---> Analysing {finName}")
 
 #     # Data
@@ -363,7 +382,7 @@ def RunMuonLosses():
 
         data = pd.read_csv(finName, delim_whitespace=True, header=None, names=columns_)
 
-        # ut.Plot1D(data=data["ele"], nbins=lastEle, xmin=0, xmax=lastEle, title=alias, xlabel="Lattice element", ylabel="Muon losses / element", fout=f"../../Images2/low_stats/Losses/h1_muons_losses_{config}.png") 
+        # ut.Plot1D(data=data["ele"], nbins=lastEle, xmin=0, xmax=lastEle, title=alias, xlabel="Lattice element", ylabel="Muon losses / element", fout=f"../../Images2/{stats}/Losses/h1_muons_losses_{config}.png") 
 
         hists_[alias] = data["ele"]
         
@@ -378,7 +397,7 @@ def RunMuonLosses():
         #     selectedHists_[alias] = hist_data
         if alias in [configs_["NoWedge"], configs_["Minus10mm"], configs_["Minus5mm"], configs_["0mm"], configs_["Plus5mm"], configs_["Plus10mm"]]: 
             selectedHists_[alias] = hist_data # / norm
-        # ../../Images2/low_stats/Losses/h1_muons_losses_overlay_pm0.002.png
+        # ../../Images2/{stats}/Losses/h1_muons_losses_overlay_pm0.002.png
 
     selectedHistsMasked_ = {}
     # norm = histsMasked_[configs_["NoWedge"]]
@@ -387,11 +406,11 @@ def RunMuonLosses():
         if alias in [configs_["NoWedge"], configs_["Minus10mm"], configs_["Minus5mm"], configs_["0mm"], configs_["Plus5mm"], configs_["Plus10mm"]]: 
             selectedHistsMasked_[alias] = hist_data # / norm
 
-    # ut.Plot1DOverlay(hists_, nbins=lastEle, xmin=0, xmax=lastEle, xlabel="Lattice element", ylabel="Muon losses / element", fout=f"../../Images2/low_stats/Losses/h1_muons_losses_overlay_all.png")  
+    # ut.Plot1DOverlay(hists_, nbins=lastEle, xmin=0, xmax=lastEle, xlabel="Lattice element", ylabel="Muon losses / element", fout=f"../../Images2/{stats}/Losses/h1_muons_losses_overlay_all.png")  
     # print(selectedHists_)
     ut.Plot1DLossesOverlay(selectedHists_, nbins=lastEle, xmin=0, xmax=lastEle, xlabel="Beamline element ID", ylabel="Muon losses / element", fout=f"../../Images/Losses/h1_muons_losses_overlay.png")  
-    ut.Plot1DLossesOverlay(selectedHists_, nbins=lastEle-5990, xmin=5990, xmax=lastEle, xlabel="Beamline element ID", ylabel="Muon losses / element", fout=f"../../Images2/low_stats/h1_muons_losses_overlay_range.png")  
-    ut.Plot1DLossesOverlay(selectedHistsMasked_, nbins=lastEle, xmin=0, xmax=lastEle, title=r"$|\Delta p / p_{0}| \leq 0.2\%$", xlabel="Beamline element ID", ylabel="Muon losses / element", fout=f"../../Images2/low_stats/h1_muons_losses_overlay_pm0.002.png")  
+    ut.Plot1DLossesOverlay(selectedHists_, nbins=lastEle-5990, xmin=5990, xmax=lastEle, xlabel="Beamline element ID", ylabel="Muon losses / element", fout=f"../../Images2/{stats}/h1_muons_losses_overlay_range.png")  
+    ut.Plot1DLossesOverlay(selectedHistsMasked_, nbins=lastEle, xmin=0, xmax=lastEle, title=r"$|\Delta p / p_{0}| \leq 0.2\%$", xlabel="Beamline element ID", ylabel="Muon losses / element", fout=f"../../Images2/{stats}/h1_muons_losses_overlay_pm0.002.png")  
      
 
     return
@@ -420,8 +439,8 @@ def RunSpinPolarisation(config="NoWedge", ele="end"):
 
     print(np.min(s_), np.max(s_))
 
-    # ut.Plot1D(s_, nbins=200, xmin=0, xmax=2, title="End of M5, no wedge", xlabel="Spin polarisation", ylabel=r"$\mu^{+}$ / 0.01", fout=f"../../Images2/low_stats/{config}/h1_muons_end_spin_total.png") 
-    ut.Plot1DOverlay({ r"$s_{x}$" : sx , r"$s_{y}$" : sy ,  r"$s_{z}$" : sz}, nbins=200, xmin=-1.0, xmax=1.0, title="End of M5, no wedge", xlabel="Spin polarisation", ylabel=r"$\mu^{+}$ / 0.01", fout=f"../../Images2/low_stats/{config}/h1_muons_end_spin_components.png", includeBlack=False, colours_extended=False) 
+    # ut.Plot1D(s_, nbins=200, xmin=0, xmax=2, title="End of M5, no wedge", xlabel="Spin polarisation", ylabel=r"$\mu^{+}$ / 0.01", fout=f"../../Images2/{stats}/{config}/h1_muons_end_spin_total.png") 
+    ut.Plot1DOverlay({ r"$s_{x}$" : sx , r"$s_{y}$" : sy ,  r"$s_{z}$" : sz}, nbins=200, xmin=-1.0, xmax=1.0, title="End of M5, no wedge", xlabel="Spin polarisation", ylabel=r"$\mu^{+}$ / 0.01", fout=f"../../Images2/{stats}/{config}/h1_muons_end_spin_components.png", includeBlack=False, colours_extended=False) 
 
     print("sx", "sy", "sz")
     print(np.mean(sx), np.mean(sy), np.mean(sz))
@@ -451,7 +470,7 @@ def RunSpinPolarisation(config="NoWedge", ele="end"):
     #                 title="End of M5, no wedge",
     #                 xlabel="Spin polarisation",
     #                 ylabel=r"$\mu^{+}$ / 0.01",
-    #                 fout=f"../../Images2/low_stats/{config}/h1_muons_end_spin_dot_y.png",
+    #                 fout=f"../../Images2/{stats}/{config}/h1_muons_end_spin_dot_y.png",
     #                 includeBlack=False,
     #                 colours_extended=False)
 
@@ -463,15 +482,19 @@ def RunSpinPolarisation(config="NoWedge", ele="end"):
 
 def main():
     
-    # RunSingleOffset(ele="end", offset="0mm") 
+    RunSingleOffset(ele="before_wedge", offset="0mm",  MeV=True) 
     # RunSingleOffset(ele="end", offset="Plus5mmTest", MeV=True) 
 
     # RunSingleOffset(ele="end", offset="Minus9.55mm") 
     # RunSingleOffset(ele="end", offset="Minus9.55mm", MeV=True) 
 
-    # RunOffsetScan(ele="end") 
-
-    RunWedgeCooling("Plus9mmTest")
+    # [RunOffsetScan(ele) for ele in ["end", "after_wedge"]]
+    # [RunWedgeCooling(config) for config in configs_]
+    # RunWedgeCooling("Minus1mm")
+    # RunWedgeCooling("NoWedge") 
+    # RunWedgeCooling("0mm") 
+    # RunWedgeCooling("Minus10mm") 
+    # RunWedgeCooling("Plus10mm")
 
     # RunCheckPosZ("Plus5mmTest")
 
@@ -490,7 +513,7 @@ def main():
 
     # RunOffsetScan("end")
 
-
+    return
 
 
 if __name__ == "__main__":

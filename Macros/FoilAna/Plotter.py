@@ -29,8 +29,8 @@ colours = [
 def RunScattering():
 
     # Replace 'your_file.csv' with the actual path to your CSV file
-    csvFile = "txt/g4beamline_CopperScatter_100000events_mu+.csv"
-    csvFile2 = "txt/Bmad_LynchDahl_3GeV_antimuon.csv" # really just theory...
+    csvFile = "Txt/g4beamline_CopperScatter_100000events_mu+.csv"
+    csvFile2 = "Txt/Bmad_LynchDahl_3GeV_antimuon.csv" # really just theory...
 
     # Get the data from G4beamline
     df = pd.read_csv(csvFile)
@@ -71,7 +71,7 @@ def RunScattering():
     ax.legend(loc="best", frameon=False, fontsize=13)
 
     # Save the figure
-    fout = "img/gr_scatteringAngle.png"
+    fout = "../../Images/FoilAna/gr_scatteringAngle.png"
     plt.savefig(fout, dpi=300, bbox_inches="tight")
     print("---> Written", fout)
 
@@ -80,8 +80,8 @@ def RunScattering():
 def RunEnergyLoss():
 
     # # Replace 'your_file.csv' with the actual path to your CSV file
-    csvFileG4BL = "txt/g4beamline_CopperEnergyLoss_100000events_mu+.csv" 
-    csvFileBmad = "txt/Bmad_energy_loss_Cu_3000MeV.csv" # 3000 MeV/c, really just theory...
+    csvFileG4BL = "Txt/g4beamline_CopperEnergyLoss_100000events_mu+_3.csv" 
+    csvFileBmad = "Txt/Bmad_energy_loss_Cu_3000MeV.csv" # 3000 MeV/c, really just theory...
 
     # Get the data from G4beamline
     df_G4BL = pd.read_csv(csvFileG4BL)
@@ -105,8 +105,11 @@ def RunEnergyLoss():
     # Create figure and axes
     fig, ax = plt.subplots()
 
+    deltaG4BL = np.array(df_G4BL["delta E [MeV]"])
+    deltaG4BLErr = np.array(df_G4BL["delta E error [MeV]"])
+
     ax.plot(x_*1e3, bb.BetheBloch(t_0=x_, p=momentum), color=colours[2], linestyle='solid', linewidth=1.0, label="Bethe-Bloch") # , xerr=xerr, yerr=yerr, fmt='o', color=cmap(i), markersize=2, ecolor=cmap(i), capsize=2, elinewidth=1, linestyle='None', label=label)
-    ax.errorbar(x=np.array(df_G4BL["t [mm]"]), y=np.array(df_G4BL["delta E [MeV]"]), yerr=np.array(df_G4BL["delta E error [MeV]"]), fmt='o', color=colours[3], markersize=3, ecolor=colours[3], capsize=2, elinewidth=1, linestyle='None', label="G4BL")
+    ax.errorbar(x=np.array(df_G4BL["t [mm]"]), y=deltaG4BL, yerr=deltaG4BLErr, fmt='o', color=colours[3], markersize=3, ecolor=colours[3], capsize=2, elinewidth=1, linestyle='None', label="G4BL")
     ax.errorbar(x=np.array(df_Bmad["t [mm]"]), y=np.array(df_Bmad["delta E [MeV]"]), fmt='o', color=colours[4], markersize=3, ecolor=colours[4], capsize=2, elinewidth=1, linestyle='None', label="Bmad")
 
     ax.set_title("$\mu^{+}$, "+str(momentum)+" MeV/c, Cu", fontsize=14, pad=10) 
@@ -116,7 +119,7 @@ def RunEnergyLoss():
     ax.legend(loc="best", frameon=False, fontsize=13)
 
     # Save the figure
-    fout = "gr_energyLoss.png"
+    fout = "../../Images/FoilAna/gr_energyLoss.png"
     plt.savefig(fout, dpi=300, bbox_inches="tight")
     print("---> Written", fout)
 
