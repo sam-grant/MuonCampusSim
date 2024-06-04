@@ -71,6 +71,34 @@ def GetBasicStats(data, xmin, xmax):
 
     return N, mean, meanErr, stdDev, stdDevErr, underflows, overflows
 
+def bin(data, bin_width=1.0): 
+    # Bin the data
+    bin_edges = np.arange(min(data), max(data) + bin_width, bin_width)
+    bin_indices = np.digitize(data, bin_edges)
+    bin_counts = np.bincount(bin_indices)
+    return bin_edges, bin_indices, bin_counts
+    
+def GetMode(data, nbins, xmin, xmax): 
+    # Get bin width
+    bin_width = abs(xmax - xmin) / nbins 
+    # Filter data within range
+    data = data[(data >= xmin) & (data <= xmax)] 
+    # Bin
+    bin_edges, bin_indices, bin_counts = bin(data, bin_width)
+    # Get mode index
+    mode_bin_index = np.argmax(bin_counts)
+    # Get mode count
+    mode_count = bin_counts[mode_bin_index]
+    # Get bin width
+    # bin_width = bin_edges[mode_bin_index] - bin_edges[mode_bin_index + 1]
+    # Calculate the bin center corresponding to the mode
+    mode_bin_center = (bin_edges[mode_bin_index] + bin_edges[mode_bin_index + 1]) / 2
+    # Mode uncertainty 
+    N = len(data)
+    mode_bin_center_err = np.sqrt(N / (N - mode_count)) * bin_width
+    return mode_bin_center, abs(mode_bin_center_err)
+
+
 import matplotlib.pyplot as plt
 
 # Define the colourmap colours
@@ -153,18 +181,10 @@ def Plot1DOverlay(data_dict, nbins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=
 
     # Iterate over the hists_dict and plot each one
     for i, (label, hist) in enumerate(data_dict.items()):
+
+        # Colours
         colour = colours[i]
         if not includeBlack: colour = colours[i+1]
-
-        # Calculate statistics
-        N, mean, meanErr, stdDev, stdDevErr, underflows, overflows = GetBasicStats(data, xmin, xmax)
-        # Peak? 
-
-        
-        # Create legend text
-        legend_text = f"Entries: {N}\nMean: {Round(mean, 3)}\nStd Dev: {Round(stdDev, 3)}"
-        if errors: legend_text = f"Entries: {N}\nMean: {Round(mean, 3)}$\pm${Round(meanErr, 1)}\nStd Dev: {Round(stdDev, 3)}$\pm${Round(stdDevErr, 1)}"
-        if underOver: legend_text += f"\nUnderflows: {underflows}\nOverflows: {overflows}"
 
         # ax.hist(hist, bins=nbins, range=(xmin, xmax), histtype='step', linewidth=1.0, fill=False, density=False, label=label, log=logY)
         counts, bin_edges, _ = ax.hist(hist, bins=nbins, range=(xmin, xmax), histtype='step', edgecolor=colour, linewidth=1.0, fill=False, density=False, color=colour, label=label, log=logY)
@@ -211,6 +231,21 @@ def Plot1DOverlayWithStats(data_dict, nbins=100, xmin=-1.0, xmax=1.0, title=None
     for i, (label, hist) in enumerate(data_dict.items()):
         colour = colours[i]
         if not includeBlack: colour = colours[i+1]
+
+        # Calculate statistics
+        N, mean, meanErr, stdDev, stdDevErr, underflows, overflows = GetBasicStats(hist, xmin, xmax)
+        peak, peakErr = GetMode(hist, nbins, xmin, xmax)
+
+        # Create legend text
+        # label_text = f"Entries: {N}\nMean: {Round(mean, 6)}$\pm${Round(meanErr, 1)}\nStd Dev: {Round(stdDev, 4)}$\pm${Round(stdDevErr, 1)}\nPeak: {Round(peak, 4)}$\pm${Round(peakErr, 1)}"
+        # label_text = f"Entries: {N}\nMean: {Round(mean, 6)}$\pm${Round(meanErr, 1)}\nPeak: {Round(peak, 4)}$\pm${Round(peakErr, 1)}"
+        label_text = f"Mean: {Round(mean, 6)}$\pm${Round(meanErr, 1)}\nPeak: {Round(peak, 4)}$\pm${Round(peakErr, 1)}"
+        # label = r"$\bf{ "+label+ r"}$"
+        label = label + "\n" + label_text
+        # label=r"$\bf{"+label+"}$"+"\n"+label_text
+
+        # label = f"\033[1m{label}\033[0m\n{label_text}"
+
         # ax.hist(hist, bins=nbins, range=(xmin, xmax), histtype='step', linewidth=1.0, fill=False, density=False, label=label, log=logY)
         counts, bin_edges, _ = ax.hist(hist, bins=nbins, range=(xmin, xmax), histtype='step', edgecolor=colour, linewidth=1.0, fill=False, density=False, color=colour, label=label, log=logY)
 
