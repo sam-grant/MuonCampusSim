@@ -22,21 +22,19 @@ colours = [
     (0.7372549019607844, 0.7411764705882353, 0.13333333333333333)  # Yellow
 ]
 
-def Plot(coords_x, coords_y, xline_, yline_, title=None, xlabel="x", ylabel="t", fout="../../Images/WedgeGeom.png"):
+def Plot(wedge_x, wedge_t, box_x, box_t, xline_, tline_, x_offset=0, delta_x=0, title=None, xlabel=r"$x_{\mathrm{body}}$", ylabel="t", fout="../../Images/WedgeGeom.png"):
     # Create figure and axes
     fig, ax = plt.subplots()
 
-    plt.axvline(x=0, color='black', linestyle='--', linewidth=1)
-    plt.axvline(x=coords_x[0], color='black', linestyle='--', linewidth=1)
-
-
     # Draw wedge
-    ax.plot(coords_x, coords_y, "b-") 
-    ax.fill(coords_x, coords_y, 'b', alpha=0.3)  
+    ax.plot(wedge_x, wedge_t, "b-") 
+    ax.fill(wedge_x, wedge_t, 'b', alpha=0.3)  
    
+    ax.plot(box_x, box_t, "b-") 
+    ax.fill(box_x, box_t, 'b', alpha=0.3) 
+
     # Plot line
-    ax.plot(xline_, yline_, color="red", linestyle='-', linewidth=1.5, label=r"$t = t_{0} + x \frac{dt}{dx}$" + "\n" + r"$\frac{dt}{dx} = \frac{t_{0}}{L}$")
-    # ax.plot(z2_, x2_, color="red", linestyle='-', linewidth=1.5, label = r"$1/t_{0} \cdot dt/dx = -1 / \Delta x$" + "\n" + r"$t_{0} = 2 \cdot \Delta x \cdot \cot(17 \pi / 180)$") # label = r"$1/t_{0}dt/dx = -1/\Delta x$\n$t_{0} = 2 \cdot \Delta x \cdot \cot(17 \pi/180)$")
+    ax.plot(xline_, tline_, color="red", linestyle='-', linewidth=1.5, label=r"$t = t_{0} + x \frac{dt}{dx}$" + "\n" + r"$\frac{dt}{dx} = -\frac{t_{0}}{L}$")
 
     # Set title, xlabel, and ylabel
     ax.set_title(title, fontsize=15, pad=10)
@@ -44,54 +42,67 @@ def Plot(coords_x, coords_y, xline_, yline_, title=None, xlabel="x", ylabel="t",
     ax.set_ylabel(ylabel, fontsize=13, labelpad=10) 
 
     # Set font size of tick labels on x and y axes
-    ax.tick_params(axis='x', labelsize=13)  # Set x-axis tick label font size
-    ax.tick_params(axis='y', labelsize=13)  # Set y-axis tick label font size
-    # Removing the axis numbering
+    ax.tick_params(axis='x', labelsize=13)  
+    ax.tick_params(axis='y', labelsize=13)  
+    
+    # Remove the axis numbering
     plt.xticks([0])
     plt.yticks([])
 
-    ax.set_ylim(-2.0, 11.0)
-    ax.set_xlim(-30, 2.0)
-    
+    ax.set_ylim(wedge_t[0]-2.0, wedge_t[1]+2.0)
+    # ax.set_xlim(box_x[0]-2.65, wedge_x[0]+2.65) 
+    ax.set_xlim(wedge_x[1]-5.0, wedge_x[0]+2.65) 
+
     ax.set_aspect('equal')
+    
     # Legend
-    plt.legend(frameon=False, loc="best", fontsize=13, bbox_to_anchor=(0.5, 0.5))
+    plt.legend(frameon=False, loc="upper center", fontsize=13)# , bbox_to_anchor=(1.0, 1.0))
 
-    # Adding the arrows and labels for t_0 and x_0
-    # t_0 arrow
-    # ax.annotate(r'$t_0$', xy=(coords_x[2], coords_y[1:2]), xytext=(coords_x[2] - 0.5, (coords_y[1] + coords_y[0]) / 2),
-    #             arrowprops=dict(arrowstyle='<->', color='black'),
-    #             fontsize=13, ha='right', va='center')
-
-    ax.annotate('', xy=(0.5, 0), xytext=(0.5, coords_y[1]),
+    # Annotations
+    plt.axvline(x=x_offset, color='black', linestyle='--', linewidth=1)
+    plt.axvline(x=wedge_x[0], color='black', linestyle='--', linewidth=1)
+    plt.axvline(x=box_x[0], color='black', linestyle='--', linewidth=1)
+    
+    # t0 line
+    ax.annotate('', xy=(-.5+x_offset, 0), xytext=(-0.5+x_offset, wedge_t[1]),
                 arrowprops=dict(arrowstyle='<->', color='black'))
 
-    ax.annotate('', xy=(coords_x[0], -0.5), xytext=(0, -0.5),
+    # ax.annotate('', xy=(wedge_x[0]+x_offset, 0), xytext=(wedge_x[0]+x_offset, wedge_t[1]),
+    #             arrowprops=dict(arrowstyle='<->', color='black'))
+
+    # L line
+    ax.annotate('', xy=(x_offset, -0.5), xytext=(wedge_x[0], -0.5),
                 arrowprops=dict(arrowstyle='<->', color='black'))
+
+
 
     # Annotate in the middle of the arrows
     # t_0 annotation
-    t0_mid_x = 0.5
-    t0_mid_y = (coords_y[1] + 0) / 2
-    ax.text(t0_mid_x+1.2, t0_mid_y, r'$t_0$', fontsize=13, ha='right', va='center', color='black')
+    t0_mid_x = x_offset - 0.80
+    t0_mid_y = ((wedge_t[0] + wedge_t[1]) / 2) 
 
-    # x_0 annotation
-    x0_mid_x = (coords_x[0] + 0) / 2
+    ax.text(t0_mid_x, t0_mid_y-0.2, r'$t_0$', fontsize=13, ha='right', va='center', color='black')
+
+    # L annotation
+    x0_mid_x = ((wedge_x[0] + x_offset) / 2) 
     x0_mid_y = -0.5
     ax.text(x0_mid_x, x0_mid_y-0.2, r'$L$', fontsize=13, ha='center', va='top', color='black')
 
     # Adding labels next to the vertical lines
-    plt.text(coords_x[0], plt.ylim()[1] * 1.05, 'x1_edge', horizontalalignment='center', color='black')
-    plt.text(0, plt.ylim()[1] * 1.05, 'x2_edge', horizontalalignment='center', color='black')
+    plt.text(x_offset, plt.ylim()[1] * 1.05, 'x1_edge', horizontalalignment='center', color='black')
+    plt.text(wedge_x[0], plt.ylim()[1] * 1.05, 'x2_edge', horizontalalignment='center', color='black')
 
-    # # x_0 arrow
-    # ax.annotate(r'$L$', xy=(coords_x[0], coords_y[0]), xytext=((coords_x[0] + coords_x[-1]) / 2, coords_y[0] - 0.5),
-    #             arrowprops=dict(arrowstyle='<->', color='black'),
-    #             fontsize=13, ha='center', va='top')
+    # Delta X 
+    if x_offset != 0: 
+        # delta_x = wedge_t[1] - x_offset
+        plt.axvline(x=0, color='black', linestyle='--', linewidth=1)
+        ax.annotate('', xy=(0, wedge_t[1]), xytext=(delta_x, wedge_t[1]),
+                    arrowprops=dict(arrowstyle='<->', color='black'))
+        dx_mid_x = ((0 + delta_x) / 2) 
+        dx_mid_y = wedge_t[1]-0.35
+        ax.text(dx_mid_x, dx_mid_y, r'$\Delta x$', fontsize=13, ha='center', va='top', color='black')
 
-
-    # plt.tight_layout()
-
+    plt.tight_layout()
     plt.savefig(fout, dpi=300) #  layout="tight")
     print("---> Written", fout)
 
@@ -105,11 +116,14 @@ def GetWedgeLength(t0, peak_angle):
 
 def WedgeGeom(triangle_height, base_length):
     # [tip, right upper, right lower, tip] 
-    coords_x = np.array([-triangle_height, 0, 0, -triangle_height])
-    # coords_x = np.array([0, triangle_height, triangle_height+side_height, triangle_height+side_height, triangle_height, 0])
-    # coords_x = np.array([0, triangle_height, 0, 0])
-    coords_y = np.array([0, base_length, 0, 0])# triangle_height, 0, 0])
-    # x-coords need to be negative
+    coords_x = np.array([triangle_height, 0, 0, triangle_height])
+    coords_y = np.array([0, base_length, 0, 0])
+    return  coords_x, coords_y
+
+def BoxGeom(box_height, box_length):
+    # [tip, right upper, right lower, tip] 
+    coords_x = np.array([-box_height, 0, 0, -box_height, -box_height])
+    coords_y = np.array([box_length, box_length, 0, 0, box_length])
     return  coords_x, coords_y
 
 def Thickness(t0, x, dthickness_dx):
@@ -127,11 +141,11 @@ def Thickness(t0, x, dthickness_dx):
 #     return xline_, zline_ 
 
 def GetSlope(t0, wedge_length):
-    dthickness_dx = t0 / wedge_length
-    x2_edge = 0.0 
-    x1_edge = -wedge_length
+    dthickness_dx = -t0 / wedge_length
+    x1_edge = 0.0 
+    x2_edge = wedge_length
     # print("dthickness_dx", dthickness_dx)
-    xline_ = np.linspace(x2_edge, x1_edge, 2)
+    xline_ = np.linspace(x1_edge, x2_edge, 2)
     yline_ = np.array([Thickness(t0, x, dthickness_dx) for x in xline_])
     # zline_ = zline_ / 2 
     return xline_, yline_ 
@@ -150,32 +164,35 @@ def main():
 
     # Wedge length
     wedge_length = GetWedgeLength(t0=t0, peak_angle=peak_angle)
-    print(wedge_length)
+    box_length = (2.37) * 24.5
+    # print(wedge_length)
 
-    x_offset = 0 # mm -> inches
-    # x_offset -= wedge_length
+    delta_x = 10 
+    # x_offset = 10 # mm -> inches
+    x_offset = delta_x - wedge_length
 
-    # Wedge geometry, including box part 
-    coords_x, coords_y = WedgeGeom(triangle_height=wedge_length, base_length=t0) # * 25.4
-    # coords_x = -coords_x
-    # print(len(coords_x), len(coords_z))
-    # Convert to mm
-    # coords_x, coords_z = coords_x * 25.4, coords_z * 25.4
+    # Wedge geometry
+    wedge_x, wedge_t = WedgeGeom(triangle_height=wedge_length, base_length=t0) # * 25.4
+    box_x, box_t = BoxGeom(box_height=box_length, box_length=t0)
 
     # Get slope
-    xline_, yline_ = GetSlope(t0=t0, wedge_length=wedge_length)
-    # xline_ = -xline_
-    # zline_ = -zline_
+    xline_, tline_ = GetSlope(t0=t0, wedge_length=wedge_length)
 
-    # print(zline_, xline_)
-    # Convert to mm
+
+
+    # Plot
+    Plot(wedge_x, wedge_t, box_x, box_t, xline_, tline_, fout="../../Images/WedgeGeom/FullBmadWedge.png")
+
 
     # Apply xline_offset
-    coords_x += x_offset
+    wedge_x += x_offset
+    box_x += x_offset
     xline_ += x_offset
-    
-    # Plot
-    Plot(coords_x, coords_y, xline_, yline_, fout="../../Images/WedgeGeom/BmadWedge.png")
+
+    # Plot(wedge_x, wedge_t, box_x, box_t, xline_, tline_, x_offset, xlabel=r"$x_{\mathrm{lab}} = x_{\mathrm{body}} - L$", fout="../../Images/WedgeGeom/FullBmadWedgeMinusL.png")
+
+    Plot(wedge_x, wedge_t, box_x, box_t, xline_, tline_, x_offset, delta_x, xlabel=r"$x_{\mathrm{lab}} = x_{\mathrm{body}} + x_{\mathrm{offset}} = x_{\mathrm{body}} + (\Delta X - L)$", fout="../../Images/WedgeGeom/FullBmadWedgeWithOffset.png")
+
 
     return
 

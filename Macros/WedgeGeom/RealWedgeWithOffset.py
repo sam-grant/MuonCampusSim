@@ -22,7 +22,7 @@ colours = [
     (0.7372549019607844, 0.7411764705882353, 0.13333333333333333)  # Yellow
 ]
 
-def Plot(coords_z, coords_x, zline_, xline_, coords_x_shift, xline_shift_, title=None, xlabel="z [in]", ylabel="x [in]", fout="../../Images/WedgeGeom.png"):
+def Plot(coords_z, coords_x, zline_, xline_, coords_x_shift, xline_shift_, title=None, xlabel="z", ylabel="x", fout="../../Images/WedgeGeom.png"):
     # Create figure and axes
     fig, ax = plt.subplots()
 
@@ -35,7 +35,7 @@ def Plot(coords_z, coords_x, zline_, xline_, coords_x_shift, xline_shift_, title
 
     # Plot line
     # ax.plot(zline_, xline_, color="red", linestyle='-', linewidth=1.5) # , label=r"$x = x_{0} + z \frac{dx}{dz}$")
-    ax.plot(zline_, xline_shift_, color="red", linestyle='-', linewidth=1.5)
+    # ax.plot(zline_, xline_shift_, color="red", linestyle='-', linewidth=1.5)
     # ax.plot(z2_, x2_, color="red", linestyle='-', linewidth=1.5, label = r"$1/t_{0} \cdot dt/dx = -1 / \Delta x$" + "\n" + r"$t_{0} = 2 \cdot \Delta x \cdot \cot(17 \pi / 180)$") # label = r"$1/t_{0}dt/dx = -1/\Delta x$\n$t_{0} = 2 \cdot \Delta x \cdot \cot(17 \pi/180)$")
 
     # Set title, xlabel, and ylabel
@@ -47,15 +47,11 @@ def Plot(coords_z, coords_x, zline_, xline_, coords_x_shift, xline_shift_, title
     ax.tick_params(axis='x', labelsize=13)  # Set x-axis tick label font size
     ax.tick_params(axis='y', labelsize=13)  # Set y-axis tick label font size
 
-    # Scientific notation
-    if ax.get_xlim()[1] > 9999 or ax.get_xlim()[1] < 9.999e-3:
-        ax.xaxis.set_major_formatter(ScalarFormatter(useMathText=True))
-        ax.ticklabel_format(style='sci', axis='x', scilimits=(0, 0))
-        ax.xaxis.offsetText.set_fontsize(13)
-    if ax.get_ylim()[1] > 9999 or ax.get_ylim()[1] < 9.999e-3:
-        ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
-        ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
-        ax.yaxis.offsetText.set_fontsize(13)
+    # Remove the axis numbering
+    plt.xticks([])
+    plt.yticks([0])
+
+    ax.set_xlim(coords_z[3]-1.0, coords_z[2]+3.0) 
 
     ax.set_aspect('equal')
 
@@ -69,9 +65,9 @@ def Plot(coords_z, coords_x, zline_, xline_, coords_x_shift, xline_shift_, title
                 arrowprops=dict(arrowstyle='<->', color='black'))
 
     # Annotations
-    x_prime_mid_x = 0.35
+    x_prime_mid_x = 1.0
     x_prime_mid_y = (coords_x[0] + coords_x_shift[0] ) / 2 
-    ax.text(x_prime_mid_x, x_prime_mid_y+0.1, r'$x^{\prime}$', fontsize=13, ha='right', va='center', color='black')
+    ax.text(x_prime_mid_x, x_prime_mid_y+0.1, r'$x_{\mathrm{offset}}$', fontsize=13, ha='right', va='center', color='black')
 
     L_mid_x = 4.35
     L_mid_y = (coords_x[0]) / 2 # ) / 2
@@ -132,7 +128,7 @@ def Thickness(t0, x, dthickness_dx):
 def GetSlope(t0, wedge_length):
     t0 = 0.5 * t0 # For isoceles wedge
     dthickness_dx = t0 / wedge_length
-    x2_edge = 0.0 + 1 # +1 for illustration
+    x2_edge = 0.0 # +1 for illustration
     x1_edge = -wedge_length
     print("dthickness_dx", dthickness_dx)
     xline_ = np.linspace(x2_edge, x1_edge, 2)

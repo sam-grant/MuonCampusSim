@@ -22,7 +22,7 @@ colours = [
     (0.7372549019607844, 0.7411764705882353, 0.13333333333333333)  # Yellow
 ]
 
-def Plot(coords_z, coords_x, zline_, xline_, title=None, xlabel="z [in]", ylabel="x [in]", fout="../../Images/WedgeGeom.png"):
+def Plot(coords_z, coords_x, zline_, xline_, title=None, xlabel="z", ylabel="x", fout="../../Images/WedgeGeom.png"):
     # Create figure and axes
     fig, ax = plt.subplots()
 
@@ -31,7 +31,7 @@ def Plot(coords_z, coords_x, zline_, xline_, title=None, xlabel="z [in]", ylabel
     ax.fill(coords_z, coords_x, 'b', alpha=0.3)  
    
     # Plot line
-    ax.plot(zline_, xline_, color="red", linestyle='-', linewidth=1.5) # , label=r"$x = x_{0} + z \frac{dx}{dz}$")
+    # ax.plot(zline_, xline_, color="red", linestyle='-', linewidth=1.5) # , label=r"$x = x_{0} + z \frac{dx}{dz}$")
     # ax.plot(z2_, x2_, color="red", linestyle='-', linewidth=1.5, label = r"$1/t_{0} \cdot dt/dx = -1 / \Delta x$" + "\n" + r"$t_{0} = 2 \cdot \Delta x \cdot \cot(17 \pi / 180)$") # label = r"$1/t_{0}dt/dx = -1/\Delta x$\n$t_{0} = 2 \cdot \Delta x \cdot \cot(17 \pi/180)$")
 
     # Set title, xlabel, and ylabel
@@ -39,21 +39,26 @@ def Plot(coords_z, coords_x, zline_, xline_, title=None, xlabel="z [in]", ylabel
     ax.set_xlabel(xlabel, fontsize=13, labelpad=10) 
     ax.set_ylabel(ylabel, fontsize=13, labelpad=10) 
 
-    # Set font size of tick labels on x and y axes
-    ax.tick_params(axis='x', labelsize=13)  # Set x-axis tick label font size
-    ax.tick_params(axis='y', labelsize=13)  # Set y-axis tick label font size
+    # L annotation
+    ax.annotate('', xy=(0, 0), xytext=(0, coords_x[0]),
+                arrowprops=dict(arrowstyle='<->', color='black'))
+    L_mid_x = 0.15
+    L_mid_y = coords_x[0] / 2 # ((coords_z[3] + coords_z[2]) / 2) 
+    ax.text(L_mid_x, L_mid_y, r'$L$', fontsize=13, ha='center', va='top', color='black')
 
-    # Scientific notation
-    if ax.get_xlim()[1] > 9999 or ax.get_xlim()[1] < 9.999e-3:
-        ax.xaxis.set_major_formatter(ScalarFormatter(useMathText=True))
-        ax.ticklabel_format(style='sci', axis='x', scilimits=(0, 0))
-        ax.xaxis.offsetText.set_fontsize(13)
-    if ax.get_ylim()[1] > 9999 or ax.get_ylim()[1] < 9.999e-3:
-        ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
-        ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
-        ax.yaxis.offsetText.set_fontsize(13)
+
+    # t0 annotation 
+    ax.annotate('', xy=(coords_z[3], -0.1), xytext=(coords_z[2], -0.1),
+                arrowprops=dict(arrowstyle='<->', color='black'))
+
+    t0_mid_x = 0.0 # ((coords_z[3] + x_offset) / 2) 
+    t0_mid_y = ((coords_z[3] + coords_z[2]) / 2) 
+    ax.text(t0_mid_x, t0_mid_y-0.2, r'$t_{0}$', fontsize=13, ha='center', va='top', color='black')
 
     ax.set_aspect('equal')
+
+    plt.xticks([])
+    plt.yticks([0])
 
     # ax.set_ylim(-0.5, 0.5)
     # ax.set_xlim(-3, 5)
@@ -66,6 +71,7 @@ def Plot(coords_z, coords_x, zline_, xline_, title=None, xlabel="z [in]", ylabel
     # bboxline_to_anchor=(0.5, 1.1))
 
     plt.axhline(y=0, color='gray', linestyle='--', linewidth=1)
+    plt.axhline(y=coords_x[0], color='gray', linestyle='--', linewidth=1)
     # plt.axvline(x=0, color='gray', linestyle='--')
 
     plt.savefig(fout, dpi=300) # , bboxline_inches="tight")
@@ -104,7 +110,7 @@ def Thickness(t0, x, dthickness_dx):
 def GetSlope(t0, wedge_length):
     t0 = 0.5 * t0 # For isoceles wedge
     dthickness_dx = t0 / wedge_length
-    x2_edge = 0.0 + 1 # +1 for illustration
+    x2_edge = 0.0 # + 1 # +1 for illustration
     x1_edge = -wedge_length
     print("dthickness_dx", dthickness_dx)
     xline_ = np.linspace(x2_edge, x1_edge, 2)
@@ -129,8 +135,8 @@ def main():
     wedge_length = GetWedgeLength(t0=t0, peak_angle=peak_angle)
     # print(wedge_length)
 
-    x_offset = -5 / 25.4 # mm -> inches
-    x_offset -= wedge_length
+    x_offset = 0 # -5 / 25.4 # mm -> inches
+    # x_offset -= wedge_length
 
     # Wedge geometry, including box part 
     coords_z, coords_x = WedgeGeom(triangle_height=wedge_length, base_length=t0, side_height=side_height) # * 25.4
