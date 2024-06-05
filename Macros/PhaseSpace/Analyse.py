@@ -249,6 +249,10 @@ def RunOffsetScan(ele="end"):
     # Plot the relative number of muons
     ut.PlotOffsetScanGraph(x=offsets_, y=R_, yerr=deltaR_, title=ele, xlabel="Wedge offset [mm]", ylabel=r"$\mu^{+} (|\Delta p / p_{0}| \leq 0.2\%)$ [normalised]", fout=f"../../Images/PhaseSpace/{stats}/OffsetScan/gr_muons_{ele}_norm_entries_pm0.002.png")
 
+    # for i, R in enumerate(R_): 
+    # i_Rmax = configs_[offsets_[np.argmax(R_)]]
+
+    print(f"The offset with the best performance is:\t{offsets_[np.argmax(R_)]} mm, with a performance of {np.max(R_)*100}+-{deltaR_[np.argmax(R_)]*100}%")
     return
 
 def RunWedgeCooling(config="0mm"):
@@ -281,25 +285,38 @@ def RunWedgeCooling(config="0mm"):
     print("\nBefore, After, End, BeforeToAfter, BeforeToEnd, AfterToEnd, BeforeToLoss, AfterToLoss")
     print(len(dataBefore),",",len(dataAfter),",",len(dataEnd),",",len(dataBeforeToAfter),",",len(dataBeforeToEnd),",",len(dataAfterToEnd),",",len(dataBeforeToLoss),",",len(dataAfterToLoss))
 
-    # Longtiduinal momentum before and after the wedge
-    ut.Plot1DOverlay({ "Before" : dataBefore["pz"] ,"After" : dataAfter["pz"] }, nbins=70, xmin=-0.07, xmax=0.07, title=r"All $\mu^{+}$, "+configs_[config]+" offset", xlabel="$\Delta p / p_{0}$", ylabel=r"$\mu^{+}$ / 0.002", fout=f"../../Images/PhaseSpace/{stats}/WedgeCooling/h1_muons_before_after_all_overlay_{config}.png", includeBlack=False, colours_extended=False) 
-    ut.Plot1DOverlay({ "Before" : dataBeforeToLoss["pz"] ,"After" : dataAfterToLoss["pz"] }, nbins=70, xmin=-0.07, xmax=0.07, title=r"Lost $\mu^{+}$, "+configs_[config]+" offset", xlabel="$\Delta p / p_{0}$", ylabel=r"$\mu^{+}$ / 0.002", fout=f"../../Images/PhaseSpace/{stats}/WedgeCooling/h1_muons_before_after_loss_overlay_{config}.png", includeBlack=False, colours_extended=False) 
-    ut.Plot1DOverlay({ "Before" : dataBeforeToEnd["pz"] ,"After" : dataAfterToEnd["pz"] }, nbins=70, xmin=-0.07, xmax=0.07, title=r"Surviving $\mu^{+}$, "+configs_[config]+" offset", xlabel="$\Delta p / p_{0}$", ylabel=r"$\mu^{+}$ / 0.002", fout=f"../../Images/PhaseSpace/{stats}/WedgeCooling/h1_muons_before_after_end_overlay_{config}.png", includeBlack=False, colours_extended=False) 
+    # # Longtiduinal momentum before and after the wedge
+    # ut.Plot1DOverlay({ "Before" : dataBefore["pz"] ,"After" : dataAfter["pz"] }, nbins=70, xmin=-0.07, xmax=0.07, title=r"All $\mu^{+}$, "+configs_[config]+" offset", xlabel="$\Delta p / p_{0}$", ylabel=r"$\mu^{+}$ / 0.002", fout=f"../../Images/PhaseSpace/{stats}/WedgeCooling/h1_muons_before_after_all_overlay_{config}.png", includeBlack=False, colours_extended=False) 
+    # ut.Plot1DOverlay({ "Before" : dataBeforeToLoss["pz"] ,"After" : dataAfterToLoss["pz"] }, nbins=70, xmin=-0.07, xmax=0.07, title=r"Lost $\mu^{+}$, "+configs_[config]+" offset", xlabel="$\Delta p / p_{0}$", ylabel=r"$\mu^{+}$ / 0.002", fout=f"../../Images/PhaseSpace/{stats}/WedgeCooling/h1_muons_before_after_loss_overlay_{config}.png", includeBlack=False, colours_extended=False) 
+    # ut.Plot1DOverlay({ "Before" : dataBeforeToEnd["pz"] ,"After" : dataAfterToEnd["pz"] }, nbins=70, xmin=-0.07, xmax=0.07, title=r"Surviving $\mu^{+}$, "+configs_[config]+" offset", xlabel="$\Delta p / p_{0}$", ylabel=r"$\mu^{+}$ / 0.002", fout=f"../../Images/PhaseSpace/{stats}/WedgeCooling/h1_muons_before_after_end_overlay_{config}.png", includeBlack=False, colours_extended=False) 
 
-    # Transverse momentum before and after the wedge
-    ut.Plot1DOverlay({ "Before" : np.sqrt(dataBefore["px"]**2+dataBefore["py"]**2) ,"After" : np.sqrt(dataAfter["px"]**2+dataAfter["py"]**2) }, nbins=80, xmin=0, xmax=0.04, title=r"All $\mu^{+}$, "+configs_[config]+" offset", xlabel="$p_{T}/p_{0}$", ylabel=r"$\mu^{+}$ / 0.0005", fout=f"../../Images/PhaseSpace/{stats}/WedgeCooling/h1_muons_pT_before_after_all_overlay_{config}.png", includeBlack=False, colours_extended=False) 
-    ut.Plot1DOverlay({ "Before" : np.sqrt(dataBeforeToLoss["px"]**2+dataBeforeToLoss["py"]**2) ,"After" : np.sqrt(dataAfterToLoss["px"]**2+dataAfterToLoss["py"]**2) }, nbins=80, xmin=0, xmax=0.04, title=r"Lost $\mu^{+}$, "+configs_[config]+" offset", xlabel="$p_{T}/p_{0}$", ylabel=r"$\mu^{+}$ / 0.0005", fout=f"../../Images/PhaseSpace/{stats}/WedgeCooling/h1_muons_pT_before_after_loss_overlay_{config}.png", includeBlack=False, colours_extended=False) 
-    ut.Plot1DOverlay({ "Before" : np.sqrt(dataBeforeToEnd["px"]**2+dataBeforeToEnd["py"]**2) ,"After" : np.sqrt(dataAfterToEnd["px"]**2+dataAfterToEnd["py"]**2) }, nbins=80, xmin=0, xmax=0.04, title=r"Surviving $\mu^{+}$, "+configs_[config]+" offset", xlabel="$p_{T}/p_{0}$", ylabel=r"$\mu^{+}$ / 0.0005", fout=f"../../Images/PhaseSpace/{stats}/WedgeCooling/h1_muons_pT_before_after_end_overlay_{config}.png", includeBlack=False, colours_extended=False) 
+    # # Transverse momentum before and after the wedge
+    # ut.Plot1DOverlay({ "Before" : np.sqrt(dataBefore["px"]**2+dataBefore["py"]**2) ,"After" : np.sqrt(dataAfter["px"]**2+dataAfter["py"]**2) }, nbins=80, xmin=0, xmax=0.04, title=r"All $\mu^{+}$, "+configs_[config]+" offset", xlabel="$p_{T}/p_{0}$", ylabel=r"$\mu^{+}$ / 0.0005", fout=f"../../Images/PhaseSpace/{stats}/WedgeCooling/h1_muons_pT_before_after_all_overlay_{config}.png", includeBlack=False, colours_extended=False) 
+    # ut.Plot1DOverlay({ "Before" : np.sqrt(dataBeforeToLoss["px"]**2+dataBeforeToLoss["py"]**2) ,"After" : np.sqrt(dataAfterToLoss["px"]**2+dataAfterToLoss["py"]**2) }, nbins=80, xmin=0, xmax=0.04, title=r"Lost $\mu^{+}$, "+configs_[config]+" offset", xlabel="$p_{T}/p_{0}$", ylabel=r"$\mu^{+}$ / 0.0005", fout=f"../../Images/PhaseSpace/{stats}/WedgeCooling/h1_muons_pT_before_after_loss_overlay_{config}.png", includeBlack=False, colours_extended=False) 
+    # ut.Plot1DOverlay({ "Before" : np.sqrt(dataBeforeToEnd["px"]**2+dataBeforeToEnd["py"]**2) ,"After" : np.sqrt(dataAfterToEnd["px"]**2+dataAfterToEnd["py"]**2) }, nbins=80, xmin=0, xmax=0.04, title=r"Surviving $\mu^{+}$, "+configs_[config]+" offset", xlabel="$p_{T}/p_{0}$", ylabel=r"$\mu^{+}$ / 0.0005", fout=f"../../Images/PhaseSpace/{stats}/WedgeCooling/h1_muons_pT_before_after_end_overlay_{config}.png", includeBlack=False, colours_extended=False) 
+
+    # More inclusive overlays
+    ut.Plot1DOverlay({ "Before wedge" : np.sqrt(dataBefore["px"]**2+dataBefore["py"]**2) ,"After wedge" : np.sqrt(dataAfter["px"]**2+dataAfter["py"]**2), "Lost before end" : np.sqrt(dataAfterToLoss["px"]**2+dataAfterToLoss["py"]**2), "Surviving to end" : np.sqrt(dataAfterToEnd["px"]**2+dataAfterToEnd["py"]**2) }, nbins=80, xmin=0, xmax=0.04, title=configs_[config]+" offset", xlabel="$p_{T}/p_{0}$", ylabel=r"$\mu^{+}$ / 0.0005", fout=f"../../Images/PhaseSpace/{stats}/WedgeCooling/h1_muons_pT_main_overlay_{config}.png", includeBlack=False, colours_extended=False) 
+    ut.Plot1DOverlay({ "Before wedge" : dataBefore["pz"], "After wedge" : dataAfter["pz"],  "Lost before end" : dataAfterToLoss["pz"], "Surviving to end" : dataAfterToEnd["pz"] }, nbins=70, xmin=-0.07, xmax=0.07, title=configs_[config]+" offset", xlabel="$\Delta p / p_{0}$", ylabel=r"$\mu^{+}$ / 0.002", fout=f"../../Images/PhaseSpace/{stats}/WedgeCooling/h1_muons_pz_main_overlay_{config}.png", includeBlack=False, colours_extended=False) 
+
+    # return
 
     # Emittance momentum before and after the wedge
     # p_magic = 3094
     # dataNoWedge["pz"] = dataNoWedge["pz"]*p_magic + p_magic
-    ut.Plot2D(x=dataBefore["x"]*1e3, y=dataBefore["px"], nBinsX=160, xmin=-40, xmax=40, nBinsY=200, ymin=-0.04, ymax=0.04, title=r"$\epsilon_{x}$", xlabel="x [mm]", ylabel=r"$p_{x}$ [MeV]", fout=f"../../Images/PhaseSpace/{stats}/WedgeCooling/h2_epsilon_x_muons_before_{config}.png") 
-    ut.Plot2D(x=dataBefore["y"]*1e3, y=dataBefore["py"], nBinsX=160, xmin=-40, xmax=40, nBinsY=200, ymin=-0.04, ymax=0.04, title=r"$\epsilon_{y}$", xlabel="y [mm]", ylabel=r"$p_{y}$ [MeV]", fout=f"../../Images/PhaseSpace/{stats}/WedgeCooling/h2_epsilon_y_muons_before_{config}.png") 
+    ut.Plot2D(x=dataBefore["x"]*1e3, y=dataBefore["px"], nBinsX=160, xmin=-40, xmax=40, nBinsY=100, ymin=-0.02, ymax=0.02, title=r"$\epsilon_{x}$"+" before wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel=r"$p_{x}/p_{0}$", fout=f"../../Images/PhaseSpace/{stats}/WedgeCooling/h2_epsilon_x_muons_before_{config}.png", logZ=False) 
+    ut.Plot2D(x=dataBefore["y"]*1e3, y=dataBefore["py"], nBinsX=160, xmin=-40, xmax=40, nBinsY=100, ymin=-0.02, ymax=0.02, title=r"$\epsilon_{y}$"+" before wedge, "+configs_[config]+" offset", xlabel="y [mm]", ylabel=r"$p_{y}/p_{0}$", fout=f"../../Images/PhaseSpace/{stats}/WedgeCooling/h2_epsilon_y_muons_before_{config}.png", logZ=False) 
     # ut.Plot2D(x=dataBefore["z"]*1e3, y=dataBefore["pz"], nBinsX=2000, xmin=-200, xmax=200, nBinsY=200, ymin=-0.07, ymax=0.07, title=r"$\epsilon_{z}$", xlabel="z [mm]", ylabel=r"$\Delta p / p_{0}$", fout=f"../../Images/PhaseSpace/{stats}/WedgeCooling/h2_epsilon_z_muons_before_{config}.png") 
     
-    ut.Plot2D(x=dataAfter["x"]*1e3, y=dataAfter["px"], nBinsX=160, xmin=-40, xmax=40, nBinsY=200, ymin=-0.04, ymax=0.04, title=r"$\epsilon_{x}$", xlabel="x [mm]", ylabel=r"$p_{x}$ [MeV]", fout=f"../../Images/PhaseSpace/{stats}/WedgeCooling/h2_epsilon_x_muons_after_{config}.png") 
-    ut.Plot2D(x=dataAfter["y"]*1e3, y=dataAfter["py"], nBinsX=160, xmin=-40, xmax=40, nBinsY=200, ymin=-0.04, ymax=0.04, title=r"$\epsilon_{y}$", xlabel="y [mm]", ylabel=r"$p_{y}$ [MeV]", fout=f"../../Images/PhaseSpace/{stats}/WedgeCooling/h2_epsilon_y_muons_after_{config}.png") 
+    ut.Plot2D(x=dataAfter["x"]*1e3, y=dataAfter["px"], nBinsX=160, xmin=-40, xmax=40, nBinsY=100, ymin=-0.02, ymax=0.02, title=r"$\epsilon_{x}$"+" after wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel=r"$p_{x}/p_{0}$", fout=f"../../Images/PhaseSpace/{stats}/WedgeCooling/h2_epsilon_x_muons_after_{config}.png", logZ=False)  
+    ut.Plot2D(x=dataAfter["y"]*1e3, y=dataAfter["py"], nBinsX=160, xmin=-40, xmax=40, nBinsY=100, ymin=-0.02, ymax=0.02, title=r"$\epsilon_{y}$"+" after wedge, "+configs_[config]+" offset", xlabel="y [mm]", ylabel=r"$p_{y}/p_{0}$", fout=f"../../Images/PhaseSpace/{stats}/WedgeCooling/h2_epsilon_y_muons_after_{config}.png", logZ=False)  
+
+    ut.Plot2D(x=dataLoss["x"]*1e3, y=dataLoss["px"], nBinsX=160, xmin=-40, xmax=40, nBinsY=100, ymin=-0.02, ymax=0.02, title=r"$\epsilon_{x}$"+" lost, "+configs_[config]+" offset", xlabel="x [mm]", ylabel=r"$p_{x}/p_{0}$", fout=f"../../Images/PhaseSpace/{stats}/WedgeCooling/h2_epsilon_x_muons_lost_{config}.png", logZ=False)  
+    ut.Plot2D(x=dataLoss["y"]*1e3, y=dataLoss["py"], nBinsX=160, xmin=-40, xmax=40, nBinsY=100, ymin=-0.02, ymax=0.02, title=r"$\epsilon_{y}$"+" lost, "+configs_[config]+" offset", xlabel="y [mm]", ylabel=r"$p_{y}/p_{0}$", fout=f"../../Images/PhaseSpace/{stats}/WedgeCooling/h2_epsilon_y_muons_lost_{config}.png", logZ=False)  
+
+    ut.Plot2D(x=dataEnd["x"]*1e3, y=dataEnd["px"], nBinsX=160, xmin=-40, xmax=40, nBinsY=100, ymin=-0.02, ymax=0.02, title=r"$\epsilon_{x}$"+" end, "+configs_[config]+" offset", xlabel="x [mm]", ylabel=r"$p_{x}/p_{0}$", fout=f"../../Images/PhaseSpace/{stats}/WedgeCooling/h2_epsilon_x_muons_end_{config}.png", logZ=False) 
+    ut.Plot2D(x=dataEnd["y"]*1e3, y=dataEnd["py"], nBinsX=160, xmin=-40, xmax=40, nBinsY=100, ymin=-0.02, ymax=0.02, title=r"$\epsilon_{y}$"+" end, "+configs_[config]+" offset", xlabel="y [mm]", ylabel=r"$p_{y}/p_{0}$", fout=f"../../Images/PhaseSpace/{stats}/WedgeCooling/h2_epsilon_y_muons_end_{config}.png", logZ=False) 
+
     # ut.Plot2D(x=dataAfter["z"]*1e3, y=dataAfter["pz"], nBinsX=2000, xmin=-200, xmax=200, nBinsY=200, ymin=-0.07, ymax=0.07, title=r"$\epsilon_{z}$", xlabel="z [mm]", ylabel=r"$\Delta p / p_{0}$", fout=f"../../Images/PhaseSpace/{stats}/WedgeCooling/h2_epsilon_z_muons_after_{config}.png") 
 
     # Transverse position before and after the wedge and at the end of the beamline
@@ -381,6 +398,7 @@ def RunMuonLosses():
     for config, alias in configs_.items():
 
         finName = f"../../Data/Partial/{config}/muon_lost.dat"
+        finName = f"../../../output/{stats}/{config}/muon_lost.dat"
         print(f"---> Analysing {finName}")
 
         data = pd.read_csv(finName, delim_whitespace=True, header=None, names=columns_)
@@ -411,9 +429,9 @@ def RunMuonLosses():
 
     # ut.Plot1DOverlay(hists_, nbins=lastEle, xmin=0, xmax=lastEle, xlabel="Lattice element", ylabel="Muon losses / element", fout=f"../../Images/PhaseSpace/{stats}/Losses/h1_muons_losses_overlay_all.png")  
     # print(selectedHists_)
-    ut.Plot1DLossesOverlay(selectedHists_, nbins=lastEle, xmin=0, xmax=lastEle, xlabel="Beamline element ID", ylabel="Muon losses / element", fout=f"../../Images/PhaseSpace/Losses/h1_muons_losses_overlay.png")  
-    ut.Plot1DLossesOverlay(selectedHists_, nbins=lastEle-5990, xmin=5990, xmax=lastEle, xlabel="Beamline element ID", ylabel="Muon losses / element", fout=f"../../Images/PhaseSpace/{stats}/h1_muons_losses_overlay_range.png")  
-    ut.Plot1DLossesOverlay(selectedHistsMasked_, nbins=lastEle, xmin=0, xmax=lastEle, title=r"$|\Delta p / p_{0}| \leq 0.2\%$", xlabel="Beamline element ID", ylabel="Muon losses / element", fout=f"../../Images/PhaseSpace/{stats}/h1_muons_losses_overlay_pm0.002.png")  
+    ut.Plot1DLossesOverlay(selectedHists_, nbins=lastEle, xmin=0, xmax=lastEle, xlabel="Beamline element ID", ylabel="Muon losses / element", fout=f"../../Images/PhaseSpace/{stats}/Losses/h1_muons_losses_overlay.png")  
+    ut.Plot1DLossesOverlay(selectedHists_, nbins=lastEle-5990, xmin=5990, xmax=lastEle, xlabel="Beamline element ID", ylabel="Muon losses / element", fout=f"../../Images/PhaseSpace/{stats}/Losses/h1_muons_losses_overlay_range.png")  
+    ut.Plot1DLossesOverlay(selectedHistsMasked_, nbins=lastEle, xmin=0, xmax=lastEle, title=r"$|\Delta p / p_{0}| \leq 0.2\%$", xlabel="Beamline element ID", ylabel="Muon losses / element", fout=f"../../Images/PhaseSpace/{stats}/Losses/h1_muons_losses_overlay_pm0.002.png")  
      
 
     return
@@ -487,12 +505,16 @@ def main():
 
     # RunSingleOffset(ele="after_wedge", offset="0mm",  MeV=True)
 
-    [RunSingleOffset(ele=ele, offset="0mm",  MeV=True) for ele in ["end", "after_wedge"]]
+    # [RunSingleOffset(ele=ele, offset="0mm",  MeV=True) for ele in ["end", "after_wedge"]]
 
     # [RunOffsetScan(ele) for ele in ["end", "after_wedge"]]
+    # RunOffsetScan("end")
 
     # RunWedgeCooling("0mm") 
+    # RunWedgeCooling("Plus10mm")
+    # RunWedgeCooling("Minus10mm")
 
+    RunMuonLosses()
     return
 
 if __name__ == "__main__":
