@@ -167,13 +167,16 @@ def RunSingleOffset(ele="end", offset="0mm", maskMom=False, MeV=False):
         # Convert to MeV/c
         print("Converting to MeV/c")
         p_magic = 3094
-        dataNoWedge["pz"] = dataNoWedge["pz"]*p_magic + p_magic
+        dataNoWedge["pz"] = dataNoWedge["pz"]*p_magic + p_magic # - 1 ??? 
         dataWedge["pz"] = dataWedge["pz"]*p_magic + p_magic
         print(f"Mean momentum with no wedge = {np.mean(dataNoWedge['pz'])}")
         # Fill histogram
         ut.Plot1DOverlayWithStats({"No wedge" : dataNoWedge["pz"], configs_[offset] : dataWedge["pz"] }, nbins=70, xmin=2980, xmax=3220, xlabel="Momentum [MeV/c]", ylabel=r"$\mu^{+}$ / 0.002", fout=f"../../Images/PhaseSpace/{stats}/SingleOffset/h1_muons_{ele}_pz_MeV_NoWedge_vs_{offset}{maskMomTag}.png") 
+        # ut.Plot2D(x=dataAfter["x"]*1e3, y=dataAfter["pz"], nBinsX=160, xmin=-40, xmax=40, nBinsY=140, ymin=-0.07, ymax=0.07, title=r"All $\mu^{+}$,"+" after wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel=r"$\Delta p / p_{0}$", fout=f"../../Images/PhaseSpace/{stats}/WedgeCooling/h2_xpz_muons_after_all_{config}.png")
     else: 
         ut.Plot1DOverlayWithStats({"No wedge" : dataNoWedge["pz"], configs_[offset] : dataWedge["pz"] }, nbins=28, xmin=-0.07, xmax=0.07, xlabel="$\Delta p / p_{0}$", ylabel="Muons / 0.005", fout=f"../../Images/PhaseSpace/{stats}/SingleOffset/h1_muons_{ele}_pz_NoWedge_vs_{offset}{maskMomTag}.png") 
+        # ut.Plot2D(x=dataAfter["x"]*1e3, y=dataAfter["pz"], nBinsX=160, xmin=-40, xmax=40, nBinsY=140, ymin=-0.07, ymax=0.07, title=r"All $\mu^{+}$,"+" after wedge, "+configs_[config]+" offset", xlabel="x [mm]", ylabel=r"$\Delta p / p_{0}$", fout=f"../../Images/PhaseSpace/{stats}/WedgeCooling/h2_xpz_muons_after_all_{config}.png")
+
     
     return
 
@@ -497,13 +500,218 @@ def RunSpinPolarisation(config="NoWedge", ele="end"):
 
     return
 
+# import matplotlib.pyplot as plt
+
+
+
+
+# def PlotH(sim, data): 
+
+#     # Create figure and axes
+#     fig, ax = plt.subplots()
+#     colour="black"
+#     logY=False
+#     counts, bin_edges, _ = ax.hist(sim["x"]*1e3, bins=48, range=(-48, 48), histtype='step', edgecolor=colour, linewidth=1.0, fill=False, density=True, color=colour, label="Sim", log=logY)
+
+
+#     # Plot scatter with error bars
+#     xerr=[] 
+#     yerr=[]
+#     if len(xerr)==0: xerr = [0] * data["x"] # Sometimes we only use yerr
+#     if len(yerr)==0: yerr = [0] * data["y"] # Sometimes we only use yerr
+
+#     ax.errorbar(x=data["x"], y=(data["y"]/np.max(data["y"]))*np.max(counts), xerr=xerr, yerr=yerr, fmt='o', color='black', markersize=4, ecolor='black', capsize=2, elinewidth=1, linestyle='None')
+
+#     # for i in range(len(dataHPWC["x"])):
+#     #     ax.plot([dataHPWC["x"][i], dataHPWC["x"][i]], [dataHPWC["y"][i], 0], color='black', linestyle='-')
+
+#     plt.savefig("../../Images/PWCs/HOR.png", dpi=300, bbox_inches="tight")
+
+#     print("Plotted.")
+
+#     return
+
+# def PlotV(sim, data): 
+
+#     # Create figure and axes
+#     fig, ax = plt.subplots()
+#     colour="black"
+#     logY=False
+#     counts, bin_edges, _ = ax.hist(sim["y"]*1e3, bins=48, range=(-48, 48), histtype='step', edgecolor=colour, linewidth=1.0, fill=False, density=True, color=colour, label="Sim", log=logY)
+
+
+#     # Plot scatter with error bars
+#     xerr=[] 
+#     yerr=[]
+#     if len(xerr)==0: xerr = [0] * data["x"] # Sometimes we only use yerr
+#     if len(yerr)==0: yerr = [0] * data["y"] # Sometimes we only use yerr
+
+#     ax.errorbar(x=data["x"], y=(data["y"]/np.max(data["y"]))*np.max(counts), xerr=xerr, yerr=yerr, fmt='o', color='black', markersize=4, ecolor='black', capsize=2, elinewidth=1, linestyle='None')
+
+#     # for i in range(len(dataHPWC["x"])):
+#     #     ax.plot([dataHPWC["x"][i], dataHPWC["x"][i]], [dataHPWC["y"][i], 0], color='black', linestyle='-')
+
+#     plt.savefig("../../Images/PWCs/VER.png", dpi=300, bbox_inches="tight")
+
+#     print("Plotted.")
+
+#     return
+
+
+def RunComparePWCs(config="NoWedge", date="JAN20", pions=False):
+
+    print("\n---> RunComparePWCs():")
+
+    configAlias = ""
+    if config=="NoWedge":
+        configAlias += "NOWEDGE"
+    else: 
+        configAlias += "WEDGEIN"
+
+    # Get data
+    finNameEnd = f"../../../output/{stats}/{config}/muon_all_end.dat"
+    if pions: finNameEnd = f"../../../output/{stats}/{config}/pion_end.dat"
+    finNameHPWC = f"../../../output/PWCs/PWC025_{configAlias}_{date}_HOR.csv"
+    finNameVPWC = f"../../../output/PWCs/PWC025_{configAlias}_{date}_VER.csv"
+
+    print(f"---> Analysing:\n{finNameEnd}\n{finNameHPWC}\n{finNameVPWC}")
+
+    # Read DataFrames
+    dataEnd = pd.read_csv(finNameEnd, delim_whitespace=True, header=None, names=columns_)
+    dataHPWC = pd.read_csv(finNameHPWC) 
+    dataVPWC = pd.read_csv(finNameVPWC) 
+
+    pionTag = ""
+    if pions: pionTag += "_pion"
+
+    ut.PlotHistAndGraph(dataEnd["x"], dataHPWC, labels=["Bmad", "PWC025H"], title=configs_[config], xlabel="x [mm]", ylabel="$\mu^{+}$ [normalised to max]", fout=f"../../Images/PWCs/{stats}/gr_h1_overlay_{config}_PWC025H_{date}{pionTag}.png")
+    ut.PlotHistAndGraph(dataEnd["y"], dataVPWC, labels=["Bmad", "PWC025V"], title=configs_[config], xlabel="y [mm]", ylabel="$\mu^{+}$ [normalised to max]", fout=f"../../Images/PWCs/{stats}/gr_h1_overlay_{config}_PWC025V_{date}{pionTag}.png")
+
+    ut.PlotHistAndGraphWithRatio(dataEnd["x"], dataHPWC, labels=["Bmad", "PWC025H"], title=configs_[config], xlabel="x [mm]", ylabel="$\mu^{+}$ [normalised to max]", fout=f"../../Images/PWCs/{stats}/gr_h1_ratio_{config}_PWC025H_{date}{pionTag}.png")
+    ut.PlotHistAndGraphWithRatio(dataEnd["y"], dataVPWC, labels=["Bmad", "PWC025V"], title=configs_[config], xlabel="y [mm]", ylabel="$\mu^{+}$ [normalised to max]", fout=f"../../Images/PWCs/{stats}/gr_h1_ratio_{config}_PWC025V_{date}{pionTag}.png", limitRatio=True)
+
+    # mask = (dataEnd["pz"] <= 0.002) & (dataEnd["pz"] >= -0.002)
+
+    # ut.PlotHistAndGraph(dataEnd["x"][mask], dataHPWC, labels=["Bmad", "PWC025H"], title=configs_[config]+", $|\Delta p / p_{0}| \leq 0.2\%$", xlabel="x [mm]", ylabel="$\mu^{+}$ [normalised to max]", fout=f"../../Images/PWCs/{stats}/gr_h1_overlay_{config}_PWC025H_{date}_pzmask_pion.png")
+    # ut.PlotHistAndGraph(dataEnd["y"][mask], dataVPWC, labels=["Bmad", "PWC025V"], title=configs_[config]+", $|\Delta p / p_{0}| \leq 0.2\%$", xlabel="y [mm]", ylabel="$\mu^{+}$ [normalised to max]", fout=f"../../Images/PWCs/{stats}/gr_h1_overlay_{config}_PWC025V_{date}_pzmask_pion.png")
+
+    # Doesn't really belong here...
+    # Compare xy vs pz 
+    # ut.Plot2D(x=dataEnd["x"]*1e3, y=dataEnd["pz"], nBinsX=160, xmin=-40, xmax=40, nBinsY=140, ymin=-0.07, ymax=0.07, title=configs_[config], xlabel="x [mm]", ylabel=r"$\Delta p / p_{0}$", fout=f"../../Images/PWCs/{stats}/h2_pz_vs_x_PWC025_pion.png")
+    # ut.Plot2D(x=dataEnd["y"]*1e3, y=dataEnd["pz"], nBinsX=160, xmin=-40, xmax=40, nBinsY=140, ymin=-0.07, ymax=0.07, title=configs_[config], xlabel="y [mm]", ylabel=r"$\Delta p / p_{0}$", fout=f"../../Images/PWCs/{stats}/h2_pz_vs_y_PWC025_pion.png")
+
+    # ut.Plot2DWith1DProj(x=dataEnd["x"]*1e3, y=dataEnd["pz"], nBinsX=160, xmin=-40, xmax=40, nBinsY=140, ymin=-0.07, ymax=0.07, title=configs_[config], xlabel="x [mm]", ylabel=r"$\Delta p / p_{0}$", fout=f"../../Images/PWCs/{stats}/h2_wproj_pz_vs_x_PWC025_pion.png")
+    # ut.Plot2DWith1DProj(x=dataEnd["y"]*1e3, y=dataEnd["pz"], nBinsX=160, xmin=-40, xmax=40, nBinsY=140, ymin=-0.07, ymax=0.07, title=configs_[config], xlabel="y [mm]", ylabel=r"$\Delta p / p_{0}$", fout=f"../../Images/PWCs/{stats}/h2_wproj_pz_vs_y_PWC025_pion.png")
+
+
+
+    return
+
+def RunInjectionAngle(config="NoWedge"):
+
+    print("\n---> RunInjectionAngle():")
+
+    # Get data
+    finNameEnd = f"../../../output/{stats}/{config}/muon_all_end.dat"
+
+    print(f"---> Analysing:\n{finNameEnd}") 
+
+    # Read DataFrames
+    dataEnd = pd.read_csv(finNameEnd, delim_whitespace=True, header=None, names=columns_)
+
+    # Convert to MeV/c
+    if True: 
+        p_magic = 3094
+        dataEnd["px"] = dataEnd["px"] * p_magic
+        dataEnd["py"] = dataEnd["py"] * p_magic
+        dataEnd["pz"] = dataEnd["pz"] * p_magic + p_magic
+
+    # Plot injection angle
+    dataEnd["pT"] = np.sqrt(pow(dataEnd["px"], 2) + pow(dataEnd["py"], 2))
+    dataEnd["p"] = np.sqrt(pow(dataEnd["px"], 2) + pow(dataEnd["py"], 2) + pow(dataEnd["pz"], 2))
+
+    mask = (dataEnd["pz"] <= (0.002* p_magic + p_magic)) & (dataEnd["pz"] >= (-0.002 * p_magic + p_magic))
+    
+    if True:
+        ut.Plot2DWith1DProj(x=dataEnd["p"], y=dataEnd["pT"]/dataEnd["p"], nBinsX=100, xmin=2980, xmax=3220, nBinsY=100, ymin=0, ymax=0.0175, title=configs_[config], ylabel=r"$p_{T} / p$", xlabel=r"p [MeV/c]", fout=f"../../Images/PhaseSpace/{stats}/InjectionAngle/h2_injection_angle_muons_{config}_MeV.png") 
+        ut.Plot2DWith1DProj(x=dataEnd["p"][mask], y=dataEnd["pT"][mask]/dataEnd["p"][mask], nBinsX=100, xmin=-0.002 * p_magic + p_magic, xmax=0.002* p_magic + p_magic, nBinsY=100, ymin=0, ymax=0.0175, title=configs_[config], ylabel=r"$p_{T} / p$", xlabel=r"p [MeV/c]", fout=f"../../Images/PhaseSpace/{stats}/InjectionAngle/h2_injection_angle_muons_{config}_MeV_accepted.png") 
+        
+        # x-profiles
+        x, xerr, y, yerr, yrms = ut.ProfileX(x=dataEnd["p"], y=dataEnd["pT"]/dataEnd["p"], nBinsX=100, xmin=2980, xmax=3220, nBinsY=100, ymin=0, ymax=0.0175)
+        ut.PlotGraph(x, y, xerr, yerr, title=configs_[config], ylabel=r"$p_{T} / p$", xlabel=r"p [MeV/c]", fout=f"../../Images/PhaseSpace/{stats}/InjectionAngle/px_injection_angle_muons_{config}_MeV.png")
+
+        x, xerr, y, yerr, yrms = ut.ProfileX(x=dataEnd["p"][mask], y=dataEnd["pT"][mask]/dataEnd["p"][mask], nBinsX=100, xmin=-0.002 * p_magic + p_magic, xmax=0.002* p_magic + p_magic, nBinsY=100, ymin=0, ymax=0.0175)
+        ut.PlotGraph(x, y, xerr, yerr, title=configs_[config], ylabel=r"$p_{T} / p$", xlabel=r"p [MeV/c]", fout=f"../../Images/PhaseSpace/{stats}/InjectionAngle/px_injection_angle_muons_{config}_MeV_accepted.png") 
+   
+    else: 
+        ut.Plot2DWith1DProj(x=dataEnd["p"], y=dataEnd["pT"]/dataEnd["p"], nBinsX=50, xmin=0, xmax=0.05, nBinsY=100, ymin=0, ymax=1.00, title=configs_[config], ylabel=r"$p_{T} / p$", xlabel=r"p", fout=f"../../Images/PhaseSpace/{stats}/InjectionAngle/px_injection_angle_muons_{config}.png", logZ=True) 
+
+    # ut.PlotHistAndGraph(dataEnd["x"], dataHPWC, labels=["Bmad", "PWC025H"], title=configs_[config], xlabel="x [mm]", ylabel="$\mu^{+}$ [normalised to max]", fout=f"../../Images/PWCs/{stats}/gr_h1_overlay_{config}_PWC025H_{date}{pionTag}.png")
+    # ut.PlotHistAndGraph(dataEnd["y"], dataVPWC, labels=["Bmad", "PWC025V"], title=configs_[config], xlabel="y [mm]", ylabel="$\mu^{+}$ [normalised to max]", fout=f"../../Images/PWCs/{stats}/gr_h1_overlay_{config}_PWC025V_{date}{pionTag}.png")
+
+    # ut.PlotHistAndGraphWithRatio(dataEnd["x"], dataHPWC, labels=["Bmad", "PWC025H"], title=configs_[config], xlabel="x [mm]", ylabel="$\mu^{+}$ [normalised to max]", fout=f"../../Images/PWCs/{stats}/gr_h1_ratio_{config}_PWC025H_{date}{pionTag}.png")
+    # ut.PlotHistAndGraphWithRatio(dataEnd["y"], dataVPWC, labels=["Bmad", "PWC025V"], title=configs_[config], xlabel="y [mm]", ylabel="$\mu^{+}$ [normalised to max]", fout=f"../../Images/PWCs/{stats}/gr_h1_ratio_{config}_PWC025V_{date}{pionTag}.png", limitRatio=True)
+
+    # mask = (dataEnd["pz"] <= 0.002) & (dataEnd["pz"] >= -0.002)
+
+    # ut.PlotHistAndGraph(dataEnd["x"][mask], dataHPWC, labels=["Bmad", "PWC025H"], title=configs_[config]+", $|\Delta p / p_{0}| \leq 0.2\%$", xlabel="x [mm]", ylabel="$\mu^{+}$ [normalised to max]", fout=f"../../Images/PWCs/{stats}/gr_h1_overlay_{config}_PWC025H_{date}_pzmask_pion.png")
+    # ut.PlotHistAndGraph(dataEnd["y"][mask], dataVPWC, labels=["Bmad", "PWC025V"], title=configs_[config]+", $|\Delta p / p_{0}| \leq 0.2\%$", xlabel="y [mm]", ylabel="$\mu^{+}$ [normalised to max]", fout=f"../../Images/PWCs/{stats}/gr_h1_overlay_{config}_PWC025V_{date}_pzmask_pion.png")
+
+    # Doesn't really belong here...
+    # Compare xy vs pz 
+    # ut.Plot2D(x=dataEnd["x"]*1e3, y=dataEnd["pz"], nBinsX=160, xmin=-40, xmax=40, nBinsY=140, ymin=-0.07, ymax=0.07, title=configs_[config], xlabel="x [mm]", ylabel=r"$\Delta p / p_{0}$", fout=f"../../Images/PWCs/{stats}/h2_pz_vs_x_PWC025_pion.png")
+    # ut.Plot2D(x=dataEnd["y"]*1e3, y=dataEnd["pz"], nBinsX=160, xmin=-40, xmax=40, nBinsY=140, ymin=-0.07, ymax=0.07, title=configs_[config], xlabel="y [mm]", ylabel=r"$\Delta p / p_{0}$", fout=f"../../Images/PWCs/{stats}/h2_pz_vs_y_PWC025_pion.png")
+
+    # ut.Plot2DWith1DProj(x=dataEnd["x"]*1e3, y=dataEnd["pz"], nBinsX=160, xmin=-40, xmax=40, nBinsY=140, ymin=-0.07, ymax=0.07, title=configs_[config], xlabel="x [mm]", ylabel=r"$\Delta p / p_{0}$", fout=f"../../Images/PWCs/{stats}/h2_wproj_pz_vs_x_PWC025_pion.png")
+    # ut.Plot2DWith1DProj(x=dataEnd["y"]*1e3, y=dataEnd["pz"], nBinsX=160, xmin=-40, xmax=40, nBinsY=140, ymin=-0.07, ymax=0.07, title=configs_[config], xlabel="y [mm]", ylabel=r"$\Delta p / p_{0}$", fout=f"../../Images/PWCs/{stats}/h2_wproj_pz_vs_y_PWC025_pion.png")
+    return
+
+def RunDispersion(config="0mm", ele="before_wedge", maskMom=False): 
+
+    print("\n---> RunDispersion():")
+
+    # Get data
+    finName = f"../../../output/{stats}/{config}/muon_{ele}.dat"
+
+    print(f"---> Analysing:\n{finName}") 
+
+    # Read DataFrames
+    data = pd.read_csv(finName, delim_whitespace=True, header=None, names=columns_)
+
+    ut.Plot1DOverlay({"Accepted" : data[(data["pz"] <= 0.002) & (data["pz"] >= -0.002)]*1e3, "All" : data["x"]*1e3},  nbins=96, xmin=-48.0, xmax=48.0, xlabel="x [mm]", ylabel="y [mm]", fout=f"../../Images/PhaseSpace/{stats}/Dispersion/h1_overlay_x_{config}_{ele}.png", logY=True)
+     
+
+    maskMomTag = ""
+    if maskMom: 
+        # Mask +/- 0.2% 
+        data = data[(data["pz"] <= 0.002) & (data["pz"] >= -0.002)]
+        maskMomTag += "_accepted"
+
+    # Plot injection angle
+    # dataEnd["pT"] = np.sqrt(pow(dataEnd["px"], 2) + pow(dataEnd["py"], 2))
+    # dataEnd["p"] = np.sqrt(pow(dataEnd["px"], 2) + pow(dataEnd["py"], 2) + pow(dataEnd["pz"], 2))
+
+    # def Plot3D(x, y, z, nBinsX=100, xmin=-1.0, xmax=1.0, nBinsY=100, ymin=-1.0, ymax=1.0, zmax=1.0, title=None, xlabel=None, ylabel=None, zlabel=None, fout="3d_plot.png", contours=False, cb=True, NDPI=300):
+
+    # nbins=70, xmin=-0.07, xmax=0.07
+    ut.Plot1D(data["x"]*1e3,  nbins=96, xmin=-48.0, xmax=48.0, xlabel="x [mm]", ylabel="y [mm]", fout=f"../../Images/PhaseSpace/{stats}/Dispersion/h1_x_{config}_{ele}{maskMomTag}.png", stats=False, logY=True)
+    # ut.Plot1DOverlay(data["x"]*1e3,  nbins=96, xmin=-48.0, xmax=48.0, xlabel="x [mm]", ylabel="y [mm]", fout=f"../../Images/PhaseSpace/{stats}/Dispersion/h1_x_{config}_{ele}{maskMomTag}.png", stats=False, logY=True)
+     
+    # ut.Plot2D(x=data["x"]*1e3, y=data["y"]*1e3, nBinsX=96, xmin=-48.0, xmax=48.0, nBinsY=96, ymin=-48.0, ymax=48.0, xlabel="x [mm]", ylabel="y [mm]", fout=f"../../Images/PhaseSpace/{stats}/Dispersion/h2_xy_{config}_{ele}{maskMomTag}.png") # , nbins=28, xmin=-0.07, xmax=0.07, title=alias, xlabel="$\Delta p / p_{0}$", ylabel="Muons / 0.005", fout=f"../../Images/PhaseSpace/{stats}/h1_muons_{ele}_pz_{config}.png") 
+    # ut.Plot2D(x=data["x"]*1e3, y=data["pz"], nBinsX=96, xmin=-48.0, xmax=48.0, nBinsY=70, ymin=-0.07, ymax=0.07, xlabel="x [mm]", ylabel="$\Delta p / p_{0}$", fout=f"../../Images/PhaseSpace/{stats}/Dispersion/h2_xpz_{config}_{ele}{maskMomTag}.png")
+    # ut.Plot2D(x=data["y"]*1e3, y=data["pz"], nBinsX=96, xmin=-48.0, xmax=48.0, nBinsY=70, ymin=-0.07, ymax=0.07, xlabel="y [mm]", ylabel="$\Delta p / p_{0}$", fout=f"../../Images/PhaseSpace/{stats}/Dispersion/h2_ypz_{config}_{ele}{maskMomTag}.png")
+    # ut.Plot3D(x=data["x"]*1e3, y=data["y"]*1e3, z=data["pz"], nBinsX=96, xmin=-48.0, xmax=48.0, nBinsY=96, ymin=-48.0, ymax=48.0, zmax=np.max(data["pz"]), xlabel="x [mm]", ylabel="y [mm]", zlabel="$\Delta p / p_{0}$", fout=f"../../Images/PhaseSpace/{stats}/Dispersion/h3_xypz_{config}_{ele}{maskMomTag}.png") # , nbins=28, xmin=-0.07, xmax=0.07, title=alias, xlabel="$\Delta p / p_{0}$", ylabel="Muons / 0.005", fout=f"../../Images/PhaseSpace/{stats}/h1_muons_{ele}_pz_{config}.png") 
+
+    return
+
 # --------------------
 # Main
 # --------------------
 
 def main():
 
-    # RunSingleOffset(ele="after_wedge", offset="0mm",  MeV=True)
+
+    # RunSingleOffset(ele="END", offset="NoWedge",  MeV=True)
 
     # [RunSingleOffset(ele=ele, offset="0mm",  MeV=True) for ele in ["end", "after_wedge"]]
 
@@ -514,7 +722,18 @@ def main():
     # RunWedgeCooling("Plus10mm")
     # RunWedgeCooling("Minus10mm")
 
-    RunMuonLosses()
+    # RunMuonLosses()
+
+    # RunComparePWCs("NoWedge", "JAN20", pions=True)
+    # RunComparePWCs("Minus8mm", "JUN21")
+    # RunInjectionAngle("NoWedge")
+    # RunInjectionAngle("Minus8mm")
+
+    # RunDispersion(config="", ele="before_wedge", maskMom=True)
+
+    RunDispersion(config="NoWedge", ele="after_wedge", maskMom=False)
+    RunDispersion(config="NoWedge", ele="after_wedge", maskMom=True)
+
     return
 
 if __name__ == "__main__":
